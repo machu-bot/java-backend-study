@@ -3,6 +3,7 @@ import Base from '../../layouts/Base.astro';
 import { chapters, allQuestions } from '../../lib/content';
 import { chapterProgress, defaultState } from '../../lib/store';
 const qs = allQuestions();
+const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
 ---
 
 <Base title="트랙" active="tracks">
@@ -19,7 +20,7 @@ const qs = allQuestions();
           chapterProgress(defaultState(), qs, c.id) * 100
         );
         return (
-          <a class="track-card" href={`/tracks/${c.id}/`}>
+          <a class="track-card" href={`${base}tracks/${c.id}/`}>
             <span class="track-num">0{i + 1}</span>
             <h3>{c.title}</h3>
             <p>{c.blurb}</p>

@@ -6,6 +6,7 @@ import { defaultState, chapterProgress, load } from '../lib/store';
 const questions = allQuestions();
 const total = questions.length;
 const initial = defaultState();
+const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
 const today = new Date().toISOString().slice(0, 10);
 ---
 
@@ -18,8 +19,8 @@ const today = new Date().toISOString().slice(0, 10);
       Java·객체지향·Spring Boot의 기반을 다지고, 오늘도 streak를 이어가세요.
     </p>
     <div class="hero-cta">
-      <a class="btn btn-primary" href="/practice/">문제 풀기 시작 →</a>
-      <a class="btn btn-ghost" href="/about/">어떻게 공부하나요?</a>
+      <a class="btn btn-primary" href={`${base}practice/`}>문제 풀기 시작 →</a>
+      <a class="btn btn-ghost" href={`${base}about/`}>어떻게 공부하나요?</a>
     </div>
 
     <div class="stat-grid">
@@ -45,7 +46,7 @@ const today = new Date().toISOString().slice(0, 10);
   <section>
     <div class="section-head">
       <h2>트랙</h2>
-      <a href="/tracks/">전체 보기 →</a>
+      <a href={`${base}tracks/`}>전체 보기 →</a>
     </div>
     <div class="track-grid">
       {
@@ -54,7 +55,7 @@ const today = new Date().toISOString().slice(0, 10);
             chapterProgress(defaultState(), questions, c.id) * 100
           );
           return (
-            <a class="track-card" href={`/tracks/${c.id}/`}>
+            <a class="track-card" href={`${base}tracks/${c.id}/`}>
               <span class="track-num">0{i + 1}</span>
               <h3>{c.title}</h3>
               <p>{c.blurb}</p>

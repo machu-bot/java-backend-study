@@ -15,6 +15,7 @@ const chapter = chapters.find((c) => c.id === chapterId);
 if (!chapter) throw new Error(`Chapter not found: ${chapterId}`);
 const questions = chapter.questions as unknown as Question[];
 const total = questions.length;
+const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
 ---
 
 <div class="quiz-wrap" data-chapter={chapterId} data-total={total}>
@@ -87,8 +88,8 @@ const total = questions.length;
     <h3>🎉 이 챕터 끝!</h3>
     <p>총 <strong data-bind="chapter-xp">0</strong> XP를 벌었습니다. 다른 챕터로 이어서 풀어보세요.</p>
     <div class="actions">
-      <a class="btn btn-primary" href="/practice/">문제 풀기로 →</a>
-      <a class="btn btn-ghost" href="/dashboard/">대시보드</a>
+      <a class="btn btn-primary" href={`${base}practice/`}>문제 풀기로 →</a>
+      <a class="btn btn-ghost" href={`${base}dashboard/`}>대시보드</a>
     </div>
   </div>
 </div>

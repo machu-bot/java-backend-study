@@ -12,11 +12,12 @@ const chapter = findChapter(id!);
 if (!chapter) {
   throw new Error(`Chapter not found: ${id}`);
 }
+const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
 ---
 
 <Base title={chapter.title} active="tracks">
   <section class="hero" style="padding-top: 24px;">
-    <a href="/tracks/" class="tiny" style="text-decoration: none;">← 트랙 목록</a>
+    <a href={`${base}tracks/`} class="tiny" style="text-decoration: none;">← 트랙 목록</a>
     <h1>{chapter.title}</h1>
     <p class="lead">{chapter.blurb}</p>
     <div class="tiny">

@@ -2,6 +2,7 @@
 import Base from '../layouts/Base.astro';
 import { allQuestions } from '../lib/content';
 const total = allQuestions().length;
+const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
 ---
 
 <Base title="대시보드" active="dashboard">
@@ -11,6 +12,7 @@ const total = allQuestions().length;
   </section>
 
   <div id="dashboard-root" data-total={total}></div>
+  <meta name="x-base-url" content={base} />
 
   <div class="dash-card">
     <h3>초기화</h3>
@@ -22,6 +24,10 @@ const total = allQuestions().length;
 <script>
   import { load, reset } from '../lib/store';
   import { allQuestions, chapters } from '../lib/content';
+  const base = '__BASE_URL_PLACEHOLDER__';
+  // hydrate base from <meta name="x-base-url"> injected at build time
+  const meta = document.querySelector('meta[name="x-base-url"]');
+  const realBase = meta?.getAttribute('content') || base;
 
   const root = document.getElementById('dashboard-root');
   if (root) {
@@ -66,7 +72,7 @@ const total = allQuestions().length;
             const done = inC.filter((q) => state.answered[q.id]?.correct).length;
             const pct = inC.length ? Math.round(done / inC.length * 100) : 0;
             return `
-              <a class="track-card" href="/tracks/${c.id}/" style="padding: 16px 18px;">
+              <a class="track-card" href="${realBase}tracks/${c.id}/" style="padding: 16px 18px;">
                 <div style="display:flex; justify-content:space-between; align-items:baseline;">
                   <strong>${c.title}</strong>
                   <span class="tiny">${done}/${inC.length} (${pct}%)</span>

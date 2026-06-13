@@ -1,23 +1,25 @@
 ---
 /**
  * Nav — sticky top nav. 다크/라이트 토글, Streak 알약.
+ * `import.meta.env.BASE_URL`을 자동으로 prefix로 붙여 GitHub Pages subpath에서도 동작.
  */
 export interface Props {
   active?: 'home' | 'tracks' | 'practice' | 'dashboard';
 }
 const { active } = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
 ---
 
 <header class="nav">
-  <a href="/" class="brand">
+  <a href={base} class="brand">
     <span class="brand-mark">J</span>
     <span class="brand-name">java-backend-study</span>
   </a>
   <nav class="nav-links">
-    <a href="/" class={active === 'home' ? 'active' : ''}>홈</a>
-    <a href="/tracks/" class={active === 'tracks' ? 'active' : ''}>트랙</a>
-    <a href="/practice/" class={active === 'practice' ? 'active' : ''}>문제 풀기</a>
-    <a href="/dashboard/" class={active === 'dashboard' ? 'active' : ''}>대시보드</a>
+    <a href={base} class={active === 'home' ? 'active' : ''}>홈</a>
+    <a href={`${base}tracks/`} class={active === 'tracks' ? 'active' : ''}>트랙</a>
+    <a href={`${base}practice/`} class={active === 'practice' ? 'active' : ''}>문제 풀기</a>
+    <a href={`${base}dashboard/`} class={active === 'dashboard' ? 'active' : ''}>대시보드</a>
   </nav>
   <div class="nav-actions">
     <streak-pill class="pill" title="오늘의 streak">
