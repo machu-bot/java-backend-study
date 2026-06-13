@@ -1,0 +1,61 @@
+---
+/**
+ * Layout — 사이트 공통 셸. Geist 폰트 import, dark default, 글로벌 스타일.
+ * 다크/라이트 토글 + 내비 + 푸터.
+ */
+import '../styles/global.css';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+
+export interface Props {
+  title: string;
+  description?: string;
+  active?: 'home' | 'tracks' | 'practice' | 'dashboard';
+}
+const {
+  title,
+  description = 'Java와 Spring 백엔드를 인터랙티브 퀴즈와 게이미피케이션으로 매일 조금씩 배웁니다.',
+  active = 'home',
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="ko" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title} · Java Backend Study</title>
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#000000" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <script is:inline>
+      (function () {
+        try {
+          const t = localStorage.getItem('jbs:theme');
+          if (t === 'light' || t === 'dark') {
+            document.documentElement.setAttribute('data-theme', t);
+          }
+        } catch {}
+      })();
+    </script>
+  </head>
+  <body>
+    <div class="shell">
+      <Nav active={active} />
+      <slot />
+      <Footer />
+    </div>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script>
+      // 전역: 토스트 함수
+      (window as any).jbsToast = (msg: string) => {
+        const el = document.getElementById('toast');
+        if (!el) return;
+        el.textContent = msg;
+        el.classList.add('show');
+        clearTimeout((el as any)._t);
+        (el as any)._t = setTimeout(() => el.classList.remove('show'), 1800);
+      };
+    </script>
+  </body>
+</html>

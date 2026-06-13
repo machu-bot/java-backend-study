@@ -1,0 +1,28 @@
+---
+import Base from '../layouts/Base.astro';
+---
+
+<Base title="문제 풀기" active="practice">
+  <section class="hero" style="padding-top: 24px;">
+    <h1>문제 풀기</h1>
+    <p class="lead">챕터를 골라 풀거나, 랜덤 5문제로 가볍게 시작합니다.</p>
+  </section>
+
+  <div class="track-grid">
+    <a class="track-card" href="/tracks/java-basics/">
+      <span class="track-num">01</span>
+      <h3>Java 기초</h3>
+      <p>변수, 자료형, 제어 흐름, 메서드 — 10문제로 시작합니다.</p>
+    </a>
+    <a class="track-card" href="/tracks/oop/">
+      <span class="track-num">02</span>
+      <h3>객체지향</h3>
+      <p>클래스, 상속, 다형성, 캡슐화 — 3문제.</p>
+    </a>
+    <a class="track-card" href="/tracks/java-basics/?random=1">
+      <span class="track-num">⚡</span>
+      <h3>랜덤 5문제</h3>
+      <p>아무 챕터에서 5문제를 섞어 가볍게 시작합니다.</p>
+    </a>
+  </div>
+</Base>

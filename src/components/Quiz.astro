@@ -1,0 +1,245 @@
+---
+/**
+ * Quiz — 챕터의 모든 문제를 순서대로 풀게 한다.
+ * MCQ / fill(빈칸) 두 가지 타입 지원.
+ * 정답·해설·XP·streak은 클라이언트에서 store로 처리.
+ */
+import { allQuestions, chapters } from '../lib/content';
+import type { Question } from '../lib/store';
+
+export interface Props {
+  chapterId: string;
+}
+const { chapterId } = Astro.props;
+const chapter = chapters.find((c) => c.id === chapterId);
+if (!chapter) throw new Error(`Chapter not found: ${chapterId}`);
+const questions = chapter.questions as unknown as Question[];
+const total = questions.length;
+---
+
+<div class="quiz-wrap" data-chapter={chapterId} data-total={total}>
+  <div class="quiz-meta">
+    <div>
+      <div class="quiz-eyebrow">트랙 · {chapter.track}</div>
+      <h2 style="font-size: 1.4rem; margin: 0 0 4px;">{chapter.title}</h2>
+      <div class="tiny">{total}문제</div>
+    </div>
+    <div class="quiz-progress" aria-live="polite">
+      <span data-bind="progress">0 / {total}</span>
+      <span class="sep">·</span>
+      <span><strong data-bind="xp">0</strong> XP</span>
+    </div>
+  </div>
+
+  <ol class="quiz-list" data-list>
+    {
+      questions.map((q, idx) => (
+        <li class="quiz-card" data-qid={q.id} data-type={q.type} data-idx={idx}>
+          <div class="quiz-head">
+            <span class="q-num">Q{idx + 1} · {q.type === 'mcq' ? '객관식' : '빈칸 채우기'}</span>
+            <span class="q-xp">+{q.xp} XP</span>
+          </div>
+          <div class="quiz-prompt">
+            <pre class="q-prompt-text">{q.prompt}</pre>
+          </div>
+          {q.type === 'mcq' ? (
+            <div class="choices" role="radiogroup" aria-label="선택지">
+              {q.choices!.map((c, i) => (
+                <button class="choice" data-i={i} type="button" disabled>
+                  <span class="key">{String.fromCharCode(65 + i)}</span>
+                  <span class="text">{c}</span>
+                </button>
+              ))}
+            </div>
+          ) : (
+            <div class="fill">
+              {q.blanks!.map((b, i) => (
+                <span class="fill-row">
+                  <span class="fill-hint">빈칸 {i + 1}{b.hint ? ` — ${b.hint}` : ''}</span>
+                  <input
+                    type="text"
+                    data-bi={i}
+                    autocomplete="off"
+                    spellcheck="false"
+                    placeholder={b.placeholder}
+                    disabled
+                  />
+                </span>
+              ))}
+              <button class="btn btn-primary fill-submit" type="button" disabled>
+                채점
+              </button>
+            </div>
+          )}
+          <div class="quiz-feedback" hidden>
+            <div class="feedback-line" data-feedback></div>
+            <div class="explanation" data-explanation></div>
+            <div class="actions">
+              <button class="btn btn-ghost next" type="button">다음 문제 →</button>
+            </div>
+          </div>
+        </li>
+      ))
+    }
+  </ol>
+
+  <div class="quiz-finish" hidden>
+    <h3>🎉 이 챕터 끝!</h3>
+    <p>총 <strong data-bind="chapter-xp">0</strong> XP를 벌었습니다. 다른 챕터로 이어서 풀어보세요.</p>
+    <div class="actions">
+      <a class="btn btn-primary" href="/practice/">문제 풀기로 →</a>
+      <a class="btn btn-ghost" href="/dashboard/">대시보드</a>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="quiz-toast" role="status" aria-live="polite"></div>
+
+<script>
+  import { recordAnswer, load } from '../lib/store';
+  import { allQuestions } from '../lib/content';
+
+  const wrap = document.querySelector<HTMLElement>('.quiz-wrap');
+  if (wrap) {
+    const chapterId = wrap.dataset.chapter!;
+    const total = parseInt(wrap.dataset.total || '0', 10);
+    const questions = allQuestions().filter((q) => q.chapter === chapterId);
+
+    questions.forEach((q) => initCard(q));
+    updateProgress();
+
+    function initCard(q: Question) {
+      const card = document.querySelector<HTMLElement>(`[data-qid="${q.id}"]`);
+      if (!card) return;
+      const state = load();
+      const prev = state.answered[q.id];
+
+      if (q.type === 'mcq') {
+        const choices = card.querySelectorAll<HTMLButtonElement>('.choice');
+        choices.forEach((b) => (b.disabled = false));
+        choices.forEach((btn) => {
+          btn.addEventListener('click', () => {
+            if (card.dataset.done === '1') return;
+            const i = parseInt(btn.dataset.i || '-1', 10);
+            grade(card, q, i, null);
+          });
+        });
+      } else {
+        const inputs = card.querySelectorAll<HTMLInputElement>('input[data-bi]');
+        const submit = card.querySelector<HTMLButtonElement>('.fill-submit')!;
+        inputs.forEach((i) => (i.disabled = false));
+        submit.disabled = false;
+        submit.addEventListener('click', () => {
+          if (card.dataset.done === '1') return;
+          const guess = Array.from(inputs).map((i) => i.value.trim());
+          grade(card, q, null, guess);
+        });
+        inputs.forEach((i) =>
+          i.addEventListener('keydown', (e) => {
+            if ((e as KeyboardEvent).key === 'Enter') submit.click();
+          })
+        );
+      }
+
+      // 다음 문제로 스크롤
+      card.querySelector<HTMLButtonElement>('.next')?.addEventListener('click', () => {
+        const next = card.nextElementSibling as HTMLElement | null;
+        if (next?.classList.contains('quiz-card')) {
+          next.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        } else {
+          const fin = wrap!.querySelector<HTMLElement>('.quiz-finish')!;
+          fin.hidden = false;
+          fin.scrollIntoView({ behavior: 'smooth' });
+        }
+      });
+
+      // 직전 시도 복원
+      if (prev) {
+        card.dataset.done = '1';
+        if (q.type === 'mcq') {
+          const choices = card.querySelectorAll<HTMLButtonElement>('.choice');
+          choices.forEach((b) => (b.disabled = true));
+        } else {
+          const inputs = card.querySelectorAll<HTMLInputElement>('input[data-bi]');
+          inputs.forEach((i, idx) => {
+            i.value = prev.userGuess?.[idx] ?? '';
+            i.disabled = true;
+          });
+          card.querySelector<HTMLButtonElement>('.fill-submit')!.disabled = true;
+        }
+        showFeedback(card, q, prev.correct, prev.xp);
+        if (prev.correct && q.type === 'mcq') {
+          const choices = card.querySelectorAll<HTMLButtonElement>('.choice');
+          choices[q.answer!]?.classList.add('correct');
+        }
+      }
+    }
+
+    function grade(
+      card: HTMLElement,
+      q: Question,
+      pickedIdx: number | null,
+      guess: string[] | null
+    ) {
+      let correct = false;
+      if (q.type === 'mcq') {
+        const choices = card.querySelectorAll<HTMLButtonElement>('.choice');
+        choices.forEach((b, i) => {
+          b.disabled = true;
+          if (i === q.answer) b.classList.add('correct');
+        });
+        correct = pickedIdx === q.answer;
+        if (!correct) choices[pickedIdx!]?.classList.add('wrong');
+      } else {
+        const inputs = card.querySelectorAll<HTMLInputElement>('input[data-bi]');
+        inputs.forEach((i) => (i.disabled = true));
+        card.querySelector<HTMLButtonElement>('.fill-submit')!.disabled = true;
+        const expected = q.blanks!.flatMap((b) => b.answer.map((a) => a.toLowerCase()));
+        const got = (guess ?? []).map((g) => g.toLowerCase());
+        correct =
+          expected.length === got.length && expected.every((a, i) => a === got[i]);
+        inputs.forEach((inp, i) => {
+          if (got[i] === expected[i]) inp.classList.add('ok');
+          else inp.classList.add('no');
+        });
+      }
+
+      const result = recordAnswer(q, correct, guess ?? undefined);
+      card.dataset.done = '1';
+      showFeedback(card, q, correct, result.xpDelta);
+      updateProgress();
+
+      const toast = (window as any).jbsToast as (m: string) => void;
+      if (correct && result.isFirstToday) {
+        toast?.(`🔥 streak ${result.state.streak.current}일 · +${result.xpDelta} XP`);
+      } else if (correct) {
+        toast?.(`+${result.xpDelta} XP`);
+      } else {
+        toast?.(`오답 · +${result.xpDelta} XP (부분 점수)`);
+      }
+    }
+
+    function showFeedback(card: HTMLElement, q: Question, correct: boolean, xp: number) {
+      const fb = card.querySelector<HTMLElement>('.quiz-feedback')!;
+      const line = card.querySelector<HTMLElement>('[data-feedback]')!;
+      const exp = card.querySelector<HTMLElement>('[data-explanation]')!;
+      fb.hidden = false;
+      line.innerHTML = correct
+        ? `✅ 정답 — <strong>+${xp} XP</strong>`
+        : `❌ 오답 — <strong>+${xp} XP</strong> (부분 점수)`;
+      exp.innerHTML = `<strong>해설.</strong> ${q.explanation.replace(/\n/g, '<br/>')}`;
+    }
+
+    function updateProgress() {
+      const state = load();
+      const solved = questions.filter((q) => state.answered[q.id]?.correct).length;
+      const xp = questions.reduce(
+        (acc, q) => acc + (state.answered[q.id]?.xp ?? 0),
+        0
+      );
+      wrap!.querySelector('[data-bind="progress"]')!.textContent = `${solved} / ${total}`;
+      wrap!.querySelector('[data-bind="xp"]')!.textContent = String(xp);
+      wrap!.querySelector('[data-bind="chapter-xp"]')!.textContent = String(xp);
+    }
+  }
+</script>

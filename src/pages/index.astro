@@ -1,0 +1,109 @@
+---
+import Base from '../layouts/Base.astro';
+import { chapters, allQuestions } from '../lib/content';
+import { defaultState, chapterProgress, load } from '../lib/store';
+
+const questions = allQuestions();
+const total = questions.length;
+const initial = defaultState();
+const today = new Date().toISOString().slice(0, 10);
+---
+
+<Base title="홈" active="home">
+  <section class="hero">
+    <span class="pill"><span class="dot"></span> {today} · 매일 한 문제</span>
+    <h1>백엔드, <span class="grad">매일 조금씩</span><br />풀면서 익힙니다.</h1>
+    <p class="lead">
+      읽고 외우는 대신 직접 풀어봅니다. {total}개의 인터랙티브 문제로
+      Java·객체지향·Spring Boot의 기반을 다지고, 오늘도 streak를 이어가세요.
+    </p>
+    <div class="hero-cta">
+      <a class="btn btn-primary" href="/practice/">문제 풀기 시작 →</a>
+      <a class="btn btn-ghost" href="/about/">어떻게 공부하나요?</a>
+    </div>
+
+    <div class="stat-grid">
+      <div class="stat">
+        <div class="label">현재 Streak</div>
+        <div class="value" data-bind="streak">{initial.streak.current}일</div>
+      </div>
+      <div class="stat">
+        <div class="label">누적 XP</div>
+        <div class="value" data-bind="xp">0</div>
+      </div>
+      <div class="stat">
+        <div class="label">푼 문제</div>
+        <div class="value" data-bind="solved">0 / {total}</div>
+      </div>
+      <div class="stat">
+        <div class="label">배지</div>
+        <div class="value" data-bind="badges">0</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>트랙</h2>
+      <a href="/tracks/">전체 보기 →</a>
+    </div>
+    <div class="track-grid">
+      {
+        chapters.map((c, i) => {
+          const prog = Math.round(
+            chapterProgress(defaultState(), questions, c.id) * 100
+          );
+          return (
+            <a class="track-card" href={`/tracks/${c.id}/`}>
+              <span class="track-num">0{i + 1}</span>
+              <h3>{c.title}</h3>
+              <p>{c.blurb}</p>
+              <div class="progress">
+                <span style={`width:${prog}%`} />
+              </div>
+            </a>
+          );
+        })
+      }
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>왜 이 사이트인가</h2>
+    </div>
+    <ul class="why">
+      <li>
+        <strong>읽기보다 풀기.</strong> 모든 챕터는 짧은 카드 + 즉시 채점
+        문제로 구성됩니다.
+      </li>
+      <li>
+        <strong>매일의 작은 의지.</strong> Streak이 끊기지 않도록 가볍게 한
+        문제씩.
+      </li>
+      <li>
+        <strong>회사에서 쓰는 코드를 가정.</strong> 면접·리뷰에서 자주 보이는
+        패턴 위주의 문제.
+      </li>
+      <li>
+        <strong>데이터는 내 브라우저에.</strong> 서버 없이 localStorage에
+        저장되니 부담 없이 시작할 수 있어요.
+      </li>
+    </ul>
+  </section>
+</Base>
+
+<script>
+  import { load } from '../lib/store';
+  const state = load();
+  const total = {total};
+  const solved = Object.values(state.answered).filter((a) => a.correct).length;
+  const set = (k: string, v: string) => {
+    const el = document.querySelector(`[data-bind="${k}"]`);
+    if (el) el.textContent = v;
+  };
+  set('streak', `${state.streak.current}일`);
+  set('xp', String(state.xp));
+  set('solved', `${solved} / ${total}`);
+  set('badges', String(state.badges.length));
+</script>

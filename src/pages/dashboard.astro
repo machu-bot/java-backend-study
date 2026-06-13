@@ -1,0 +1,87 @@
+---
+import Base from '../layouts/Base.astro';
+---
+
+<Base title="대시보드" active="dashboard">
+  <section class="hero" style="padding-top: 24px;">
+    <h1>대시보드</h1>
+    <p class="lead">내 학습 진도, XP, streak, 배지를 한 곳에서 확인합니다.</p>
+  </section>
+
+  <div id="dashboard-root" data-total="13"></div>
+
+  <div class="dash-card">
+    <h3>초기화</h3>
+    <p class="muted tiny" style="margin-bottom: 10px;">진도를 모두 리셋합니다. 되돌릴 수 없습니다.</p>
+    <button class="btn btn-err" data-reset>진도 초기화</button>
+  </div>
+</Base>
+
+<script>
+  import { load, reset } from '../lib/store';
+  import { allQuestions, chapters } from '../lib/content';
+
+  const root = document.getElementById('dashboard-root');
+  if (root) {
+    const total = parseInt(root.dataset.total || '0', 10);
+    const state = load();
+    const answered = Object.values(state.answered);
+    const solved = answered.filter((a) => a.correct).length;
+    const accuracy = answered.length === 0 ? 0 : Math.round(solved / answered.length * 100);
+    const allQs = allQuestions();
+
+    const allBadges = [
+      { id: 'first-correct', name: '🎯 첫 정답', desc: '문제 하나를 맞힘' },
+      { id: 'five-correct', name: '🔥 5문제 정답', desc: '정답 5개 달성' },
+      { id: 'streak-3', name: '📅 3일 streak', desc: '3일 연속 학습' },
+      { id: 'streak-7', name: '⚡ 7일 streak', desc: '7일 연속 학습' },
+    ];
+
+    root.innerHTML = `
+      <div class="stat-grid">
+        <div class="stat"><div class="label">현재 Streak</div><div class="value">${state.streak.current}일</div></div>
+        <div class="stat"><div class="label">최고 Streak</div><div class="value">${state.streak.best}일</div></div>
+        <div class="stat"><div class="label">XP</div><div class="value">${state.xp}</div></div>
+        <div class="stat"><div class="label">푼 문제</div><div class="value">${solved} / ${total}</div></div>
+        <div class="stat"><div class="label">정확도</div><div class="value">${accuracy}%</div></div>
+      </div>
+
+      <div class="dash-card">
+        <h3>배지</h3>
+        <div style="display:flex; flex-wrap:wrap; gap:8px;">
+          ${allBadges.map((b) => {
+            const unlocked = state.badges.includes(b.id);
+            return `<span class="badge ${unlocked ? '' : 'locked'}" title="${b.desc}">${b.name}</span>`;
+          }).join('')}
+        </div>
+      </div>
+
+      <div class="dash-card">
+        <h3>챕터별 진행도</h3>
+        <div style="display:grid; gap:10px;">
+          ${chapters.map((c) => {
+            const inC = allQs.filter((q) => q.chapter === c.id);
+            const done = inC.filter((q) => state.answered[q.id]?.correct).length;
+            const pct = inC.length ? Math.round(done / inC.length * 100) : 0;
+            return `
+              <a class="track-card" href="/tracks/${c.id}/" style="padding: 16px 18px;">
+                <div style="display:flex; justify-content:space-between; align-items:baseline;">
+                  <strong>${c.title}</strong>
+                  <span class="tiny">${done}/${inC.length} (${pct}%)</span>
+                </div>
+                <div class="progress" style="margin-top: 8px;"><span style="width:${pct}%"></span></div>
+              </a>
+            `;
+          }).join('')}
+        </div>
+      </div>
+    `;
+
+    document.querySelector<HTMLButtonElement>('[data-reset]')?.addEventListener('click', () => {
+      if (confirm('진도를 모두 초기화할까요? 되돌릴 수 없습니다.')) {
+        reset();
+        location.reload();
+      }
+    });
+  }
+</script>

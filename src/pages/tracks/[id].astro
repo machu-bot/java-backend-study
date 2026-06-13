@@ -1,0 +1,27 @@
+---
+import Base from '../../layouts/Base.astro';
+import Quiz from '../../components/Quiz.astro';
+import { findChapter } from '../../lib/content';
+
+export function getStaticPaths() {
+  return ['java-basics', 'oop'].map((id) => ({ params: { id } }));
+}
+
+const { id } = Astro.params;
+const chapter = findChapter(id!);
+if (!chapter) {
+  throw new Error(`Chapter not found: ${id}`);
+}
+---
+
+<Base title={chapter.title} active="tracks">
+  <section class="hero" style="padding-top: 24px;">
+    <a href="/tracks/" class="tiny" style="text-decoration: none;">← 트랙 목록</a>
+    <h1>{chapter.title}</h1>
+    <p class="lead">{chapter.blurb}</p>
+    <div class="tiny">
+      {chapter.questions.length}문제 · 약 {chapter.estMinutes}분
+    </div>
+  </section>
+  <Quiz chapterId={chapter.id} />
+</Base>

@@ -1,0 +1,37 @@
+---
+import Base from '../../layouts/Base.astro';
+import { chapters, allQuestions } from '../../lib/content';
+import { chapterProgress, defaultState } from '../../lib/store';
+const qs = allQuestions();
+---
+
+<Base title="트랙" active="tracks">
+  <section class="hero" style="padding-top: 24px;">
+    <h1>트랙</h1>
+    <p class="lead">챕터를 골라 풀거나, 아래에서 진행도를 확인합니다.</p>
+  </section>
+
+  <div class="track-grid">
+    {
+      chapters.map((c, i) => {
+        const inC = qs.filter((q) => q.chapter === c.id);
+        const prog = Math.round(
+          chapterProgress(defaultState(), qs, c.id) * 100
+        );
+        return (
+          <a class="track-card" href={`/tracks/${c.id}/`}>
+            <span class="track-num">0{i + 1}</span>
+            <h3>{c.title}</h3>
+            <p>{c.blurb}</p>
+            <div class="tiny" style="margin-top: 14px;">
+              {inC.length}문제 · 약 {c.estMinutes}분
+            </div>
+            <div class="progress" style="margin-top: 8px;">
+              <span style={`width:${prog}%`} />
+            </div>
+          </a>
+        );
+      })
+    }
+  </div>
+</Base>

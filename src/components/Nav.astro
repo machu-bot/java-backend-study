@@ -1,0 +1,58 @@
+---
+/**
+ * Nav — sticky top nav. 다크/라이트 토글, Streak 알약.
+ */
+export interface Props {
+  active?: 'home' | 'tracks' | 'practice' | 'dashboard';
+}
+const { active } = Astro.props;
+---
+
+<header class="nav">
+  <a href="/" class="brand">
+    <span class="brand-mark">J</span>
+    <span class="brand-name">java-backend-study</span>
+  </a>
+  <nav class="nav-links">
+    <a href="/" class={active === 'home' ? 'active' : ''}>홈</a>
+    <a href="/tracks/" class={active === 'tracks' ? 'active' : ''}>트랙</a>
+    <a href="/practice/" class={active === 'practice' ? 'active' : ''}>문제 풀기</a>
+    <a href="/dashboard/" class={active === 'dashboard' ? 'active' : ''}>대시보드</a>
+  </nav>
+  <div class="nav-actions">
+    <streak-pill class="pill" title="오늘의 streak">
+      <span class="dot" data-streak-dot></span>
+      <span data-streak-text>0일</span>
+    </streak-pill>
+    <button
+      class="theme-toggle"
+      data-theme-toggle
+      aria-label="테마 토글"
+      title="라이트/다크 모드"
+    >◐</button>
+  </div>
+</header>
+
+<script>
+  // Streak pill
+  const textEl = document.querySelector<HTMLElement>('[data-streak-text]');
+  const dotEl = document.querySelector<HTMLElement>('[data-streak-dot]');
+  try {
+    const raw = localStorage.getItem('jbs:state');
+    const state = raw ? JSON.parse(raw) : null;
+    const streak = state?.streak?.current ?? 0;
+    if (textEl) textEl.textContent = `${streak}일`;
+    if (dotEl && streak === 0) dotEl.classList.add('warn');
+  } catch {}
+
+  // Theme toggle
+  const toggle = document.querySelector<HTMLButtonElement>('[data-theme-toggle]');
+  toggle?.addEventListener('click', () => {
+    const cur = document.documentElement.getAttribute('data-theme') || 'dark';
+    const next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    try {
+      localStorage.setItem('jbs:theme', next);
+    } catch {}
+  });
+</script>
