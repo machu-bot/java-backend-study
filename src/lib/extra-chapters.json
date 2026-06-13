@@ -1338,5 +1338,354 @@
         "xp": 20
       }
     ]
+  },
+  {
+    "id": "generics-lambdas",
+    "title": "제네릭 + 람다/스트림",
+    "blurb": "타입 소거, 와일드카드/PECS, 함수형 인터페이스, 람다 캡처 규칙, 스트림 파이프라인, Collectors — 자바 모던 코어의 핵심.",
+    "track": "Java",
+    "order": 6,
+    "estMinutes": 85,
+    "questions": [
+      {
+        "id": "gl-01",
+        "type": "mcq",
+        "chapter": "generics-lambdas",
+        "prompt": "다음 중 **제네릭 타입**에 대한 설명으로 옳은 것은?",
+        "choices": [
+          "제네릭은 런타임에 타입 정보가 유지된다 (reified).",
+          "제네릭은 **타입 소거(type erasure)** 로 인해 런타임에는 타입 정보가 사라진다.",
+          "제네릭은 `int`, `long` 같은 **원시 타입**에도 직접 사용할 수 있다.",
+          "제네릭 타입 파라미터는 `<T>`로만 쓸 수 있다."
+        ],
+        "answer": 1,
+        "explanation": "자바 제네릭은 **타입 소거** 방식으로 구현됩니다 — 컴파일 시 타입 체크 후 런타임에는 `Object`로 바뀌고 캐스팅이 들어갑니다. 그래서 `List<String>`과 `List<Integer>`는 런타임에 같은 클래스이고, 원시 타입(`int`, `double`)은 제네릭 타입 인자로 못 쓰고 `Integer`, `Double` 같은 박싱 타입을 써야 해요.",
+        "xp": 10
+      },
+      {
+        "id": "gl-02",
+        "type": "mcq",
+        "chapter": "generics-lambdas",
+        "prompt": "다음 중 와일드카드 `<? extends Number>`의 의미로 옳은 것은?",
+        "choices": [
+          "Number와 그 **하위 타입**만 허용 (상한 경계, upper bounded).",
+          "Number와 그 **상위 타입**만 허용 (하한 경계, lower bounded).",
+          "모든 타입을 허용한다.",
+          "Number 타입만 허용한다."
+        ],
+        "answer": 0,
+        "explanation": "`? extends T`는 **상한 경계** — T와 T의 자식 타입만 허용. `List<? extends Number>`는 `List<Integer>`, `List<Double>`, `List<Number>`를 받을 수 있습니다. 반대는 `? super T`로 하한 경계. PECS(Producer extends, Consumer super) 원칙에 따라 입력은 super, 출력은 extends를 쓰는 게 좋아요.",
+        "xp": 10
+      },
+      {
+        "id": "gl-03",
+        "type": "mcq",
+        "chapter": "generics-lambdas",
+        "prompt": "**PECS(Producer Extends, Consumer Super)** 원칙에 따라, **읽기 전용**으로 `Integer`를 받아 합을 구하는 메서드의 시그니처로 가장 적절한 것은?",
+        "choices": [
+          "`int sum(List<Integer> list)`",
+          "`int sum(List<? extends Integer> list)`",
+          "`int sum(List<? super Integer> list)`",
+          "`int sum(List<?> list)`"
+        ],
+        "answer": 1,
+        "explanation": "리스트에서 **읽기(Producer)** 만 한다면 `? extends T`가 적절합니다. `Integer` 외에 `Number`나 `Object` 리스트도 받아서 그 안의 원소를 Integer로 다룰 수 있죠. 반대로 **쓰기(Consumer)** 만 한다면 `? super T`로 T와 그 부모 타입을 받습니다. `?`만 쓰면 읽기만 가능하고 null만 넣을 수 있어요.",
+        "xp": 15
+      },
+      {
+        "id": "gl-04",
+        "type": "mcq",
+        "chapter": "generics-lambdas",
+        "prompt": "Java 7에서 도입된 **다이아몬드 연산자 `<>`** 에 대한 설명으로 옳은 것은?",
+        "choices": [
+          "모든 타입 파라미터를 명시적으로 적어야 한다.",
+          "생성자 호출 시 타입 추론으로 타입 파라미터를 생략할 수 있다.",
+          "메서드 반환 타입으로도 사용할 수 있다.",
+          "런타임에 타입 정보를 보존한다."
+        ],
+        "answer": 1,
+        "explanation": "Java 7부터 `new ArrayList<>()`처럼 다이아몬드 연산자로 우변의 제네릭 타입을 생략할 수 있습니다. 컴파일러가 좌변(`ArrayList<String>`)을 보고 추론해요. 좌변도 생략하면 `new ArrayList<>()`는 `ArrayList<Object>`로 추론됩니다. 타입 추론은 Java 8의 람다, 10의 `var` 등장으로 점점 더 강력해졌어요.",
+        "xp": 10
+      },
+      {
+        "id": "gl-05",
+        "type": "mcq",
+        "chapter": "generics-lambdas",
+        "prompt": "다음 중 **raw type** (예: `List list = new ArrayList();`) 사용에 대한 설명으로 옳은 것은?",
+        "choices": [
+          "이전 코드와의 호환성을 위해 허용되며, 컴파일러는 경고를 **나타내지 않는다**.",
+          "raw type은 타입 안전성을 잃게 해 **unchecked 경고**가 발생한다.",
+          "raw type은 런타임에 더 빠르게 동작한다.",
+          "raw type은 제네릭과 별개의 다른 기능이다."
+        ],
+        "answer": 1,
+        "explanation": "raw type은 자바 5 이전 코드 호환을 위해 유지되지만, 타입 안전성을 잃어서 컴파일러가 `unchecked` 경고를 냅니다. `ArrayList raw = new ArrayList(); raw.add(\"hi\"); String s = (String) raw.get(0);`처럼 명시적 캐스팅이 필요하고 잘못된 타입을 넣으면 ClassCastException이 날 수 있어요. 새로 작성하는 코드에는 항상 타입 파라미터를 명시하세요.",
+        "xp": 10
+      },
+      {
+        "id": "gl-06",
+        "type": "mcq",
+        "chapter": "generics-lambdas",
+        "prompt": "다음 중 **제네릭 메서드**의 시그니처로 옳은 것은?",
+        "choices": [
+          "`public static <T> T identity(T value) { return value; }`",
+          "`public static T identity(T value) { return value; }`",
+          "`public static <T> identity(T value) { return value; }`",
+          "제네릭 메서드는 만들 수 없다."
+        ],
+        "answer": 0,
+        "explanation": "제네릭 메서드는 **반환 타입 앞에 타입 파라미터 `<T>`** 를 선언합니다. 호출 시 `Integer i = identity(42);`처럼 컴파일러가 인자 타입에서 T를 추론해요. 클래스 자체가 제네릭이 아니어도 (`class Util { ... }`) 메서드만 제네릭으로 만들 수 있습니다.",
+        "xp": 10
+      },
+      {
+        "id": "gl-07",
+        "type": "mcq",
+        "chapter": "generics-lambdas",
+        "prompt": "다음 중 **람다 표현식**에 대한 설명으로 **옳지 않은** 것은?",
+        "choices": [
+          "함수형 인터페이스(추상 메서드가 하나뿐)의 인스턴스로 쓸 수 있다.",
+          "외부 변수를 **캡처**해서 사용할 수 있다(단, effectively final이어야 함).",
+          "this 키워드는 **람다를 감싼 외부 클래스**를 가리킨다.",
+          "람다는 익명 클래스와 달리 컴파일 시점에 별도의 .class 파일이 매번 생성된다."
+        ],
+        "answer": 3,
+        "explanation": "람다는 컴파일러가 `invokedynamic`과 `LambdaMetafactory`로 처리해 **런타임에 동적으로** 인스턴스를 만듭니다. 그래서 익명 클래스처럼 매번 .class 파일이 생기지 않아요. `this`는 람다를 감싼 외부 클래스 인스턴스를 가리키는 점(익명 클래스는 자기 자신)도 큰 차이입니다.",
+        "xp": 10
+      },
+      {
+        "id": "gl-08",
+        "type": "mcq",
+        "chapter": "generics-lambdas",
+        "prompt": "람다 또는 익명 클래스에서 **지역 변수를 캡처**하려고 할 때의 규칙으로 옳은 것은?",
+        "choices": [
+          "아무 지역 변수나 캡처 가능하다.",
+          "final 또는 **effectively final**(다시 할당되지 않는) 지역 변수만 캡처 가능하다.",
+          "캡처된 변수의 값을 변경할 수 있다.",
+          "인스턴스 변수는 캡처할 수 없다."
+        ],
+        "answer": 1,
+        "explanation": "람다/익명 클래스에서 참조하는 지역 변수는 final이거나 effectively final이어야 합니다(`final` 키워드 안 붙여도 코드상 재할당이 없으면 컴파일러가 인정). 인스턴스/클래스 변수는 자유롭게 참조 가능. 이 제약은 자유 변수가 캡처되는 시점의 값으로 고정되어야 멀티스레드 환경에서도 안전하기 때문이에요.",
+        "xp": 10
+      },
+      {
+        "id": "gl-09",
+        "type": "mcq",
+        "chapter": "generics-lambdas",
+        "prompt": "다음 중 **함수형 인터페이스**의 예로 옳은 것은?",
+        "choices": [
+          "`Runnable`, `Supplier<T>`, `Function<T, R>`, `Consumer<T>`",
+          "`ArrayList`, `HashMap`",
+          "`Thread`",
+          "`Object`"
+        ],
+        "answer": 0,
+        "explanation": "`@FunctionalInterface` 어노테이션이 붙은 인터페이스(또는 추상 메서드가 1개인 인터페이스)는 모두 함수형 인터페이스입니다. `java.util.function` 패키지의 `Supplier`(인자 없음, 값 반환), `Consumer`(인자 있음, 반환 없음), `Function`(인자→반환), `Predicate`(인자→boolean)가 가장 자주 쓰여요. `Runnable`도 함수형.",
+        "xp": 10
+      },
+      {
+        "id": "gl-10",
+        "type": "mcq",
+        "chapter": "generics-lambdas",
+        "prompt": "메서드 레퍼런스 `String::valueOf`에 대한 설명으로 옳은 것은?",
+        "choices": [
+          "인스턴스 메서드를 **특정 객체에 바인딩**한 레퍼런스다.",
+          "인자가 없는 정적 메서드 레퍼런스다.",
+          "오버로드를 모두 포함하는 임포트다.",
+          "람다보다 항상 느리다."
+        ],
+        "answer": 1,
+        "explanation": "`String::valueOf`는 **정적 메서드 레퍼런스**로 `x -> String.valueOf(x)`의 축약형입니다. `int -> Integer`처럼 인자 타입과 반환 타입이 일치할 때 쓸 수 있어요. 인스턴스 메서드 레퍼런스에는 `obj::method`(특정 객체에 바인딩)와 `ClassName::method`(첫 인자를 수신자로) 두 가지가 있고, 생성자는 `ClassName::new`로 표현합니다.",
+        "xp": 10
+      },
+      {
+        "id": "gl-11",
+        "type": "mcq",
+        "chapter": "generics-lambdas",
+        "prompt": "Java 8의 **Stream**에 대한 설명으로 **옳지 않은** 것은?",
+        "choices": [
+          "스트림은 원본 데이터를 **변경하지 않는다**.",
+          "스트림은 한 번만 소비할 수 있다(재사용 불가).",
+          "중간 연산(`map`, `filter`)은 즉시 실행되고 최종 연산(`collect`, `forEach`)이 호출돼야 lazy 파이프라인이 동작한다.",
+          "스트림은 내부적으로 for-loop보다 항상 빠르다."
+        ],
+        "answer": 3,
+        "explanation": "스트림은 모든 경우에 for-loop보다 빠르지 않습니다. 작은 컬렉션이나 단순 순회에서는 오히려 오버헤드가 있고, 병렬 스트림(`parallelStream`)도 데이터 크기와 작업 비용이 충분하지 않으면 손해예요. `for` 루프 vs 스트림은 **가독성/의도 표현** vs **성능** 트레이드오프. 측정을 먼저 하세요.",
+        "xp": 10
+      },
+      {
+        "id": "gl-12",
+        "type": "mcq",
+        "chapter": "generics-lambdas",
+        "prompt": "다음 중 **스트림**의 `Optional` 관련 중간 연산으로 옳은 것은?",
+        "choices": [
+          "`map`은 반환 타입이 `Optional`이다.",
+          "`flatMap`은 내부의 `Optional`을 풀어서 평탄화한다.",
+          "`filter`는 항상 `Optional`을 반환한다.",
+          "스트림은 `Optional`을 다룰 수 없다."
+        ],
+        "answer": 1,
+        "explanation": "`Optional.stream()`이 있어 `Optional` 자체를 0개 또는 1개 요소 스트림으로 변환할 수 있고, `flatMap`을 함께 쓰면 중첩된 `Optional`을 평탄화합니다. 예: `users.stream().map(User::getAddress).flatMap(Optional::stream)` — null 주소를 자동으로 건너뛰는 깔끔한 패턴. `map`은 일반 타입을 그대로 매핑하므로 `Optional`이 자동으로 나오지 않습니다.",
+        "xp": 15
+      },
+      {
+        "id": "gl-13",
+        "type": "mcq",
+        "chapter": "generics-lambdas",
+        "prompt": "`Collectors.groupingBy(...)`의 결과로 옳은 것은?",
+        "choices": [
+          "`List<T>`",
+          "`Map<K, List<T>>` (K는 분류 키)",
+          "`Set<T>`",
+          "`Optional<T>`"
+        ],
+        "answer": 1,
+        "explanation": "`Collectors.groupingBy(classifier)`는 분류 함수가 돌려준 키 K와 그 키에 해당하는 원소 리스트를 매핑한 `Map<K, List<T>>`를 만듭니다. 다운스트림 컬렉터를 바꾸면 `Map<K, Long>` (counting), `Map<K, Integer>` (summingInt), `Map<K, Set<T>>` (toSet) 같은 변형도 가능해요.",
+        "xp": 10
+      },
+      {
+        "id": "gl-14",
+        "type": "mcq",
+        "chapter": "generics-lambdas",
+        "prompt": "스트림의 `forEach`와 `forEachOrdered`의 차이로 옳은 것은?",
+        "choices": [
+          "`forEach`는 항상 순서를 보장한다.",
+          "병렬 스트림에서 `forEach`는 순서를 보장하지 않을 수 있고, `forEachOrdered`는 원본 순서를 보장한다.",
+          "`forEachOrdered`는 직렬 스트림에서만 동작한다.",
+          "두 메서드는 완전히 같은 동작이다."
+        ],
+        "answer": 1,
+        "explanation": "병렬 스트림(`parallel()`)에서 `forEach`는 여러 스레드가 동시에 처리해 **출력 순서가 뒤바뀔 수 있습니다**. 순서가 중요하면 `forEachOrdered`를 쓰면 직렬화되어 원본 순서대로 처리돼요. 다만 `forEachOrdered`는 병렬의 이점을 일부 포기하므로 정말 순서가 필요할 때만 사용해야 합니다.",
+        "xp": 10
+      },
+      {
+        "id": "gl-15",
+        "type": "mcq",
+        "chapter": "generics-lambdas",
+        "prompt": "다음 중 **bounded type parameter** `<T extends Comparable<T>>`의 의미로 옳은 것은?",
+        "choices": [
+          "T는 `Comparable` 인터페이스의 **자식** 타입이어야 한다.",
+          "T는 `Comparable` 인터페이스를 **구현**해야 한다.",
+          "T는 `Comparable`의 인스턴스여야 한다.",
+          "T는 어떤 타입이든 가능하다."
+        ],
+        "answer": 1,
+        "explanation": "`<T extends Comparable<T>>`는 T가 `Comparable<T>`를 구현한 타입이어야 한다는 뜻 — `String`, `Integer`, `LocalDate` 등은 만족하지만 사용자 정의 클래스는 `implements Comparable<MyClass>`를 직접 해야 해요. `extends` 키워드를 쓰지만 인터페이스 제한도 포함하는 게 자바 제네릭의 특징.",
+        "xp": 10
+      },
+      {
+        "id": "gl-16",
+        "type": "mcq",
+        "chapter": "generics-lambdas",
+        "prompt": "자바에서 `new T[10]` 같은 **제네릭 타입의 배열**을 직접 만들 수 없는 이유로 옳은 것은?",
+        "choices": [
+          "자바 문법상 금지되어 있다.",
+          "타입 소거 때문에 런타임에 T의 구체 타입을 알 수 없어 안전한 배열을 만들 수 없다.",
+          "배열은 제네릭과 항상 호환된다.",
+          "성능이 너무 느려져서."
+        ],
+        "answer": 1,
+        "explanation": "자바는 **reified**(런타임에 타입 보존)가 아니라 **type erasure** 기반이라 `T`가 `Object`로 소거됩니다. `new T[10]`은 사실상 `new Object[10]`이 되고, `List<String>[]` 같은 **파라미터화된 타입의 배열**은 `Object[]`로 안전하지 않은 캐스팅이 필요해 unchecked 경고가 나옵니다. 해결: `ArrayList<T>` 같은 컬렉션을 쓰거나, 리플렉션으로 `Array.newInstance(...)`를 사용.",
+        "xp": 15
+      },
+      {
+        "id": "gl-17",
+        "type": "mcq",
+        "chapter": "generics-lambdas",
+        "prompt": "다음 코드의 출력은?\n\n```java\nList<String> list = List.of(\"a\", \"b\", \"c\", \"d\");\nString s = list.stream()\n              .filter(x -> !x.equals(\"b\"))\n              .map(String::toUpperCase)\n              .reduce(\"\", (a, b) -> a + b);\nSystem.out.println(s);\n```",
+        "choices": [
+          "ABCD",
+          "ACD",
+          "ABcD",
+          "Acd"
+        ],
+        "answer": 1,
+        "explanation": "`filter`로 `\"b\"`를 제거 → `[\"a\", \"c\", \"d\"]`. `map(String::toUpperCase)`로 `[\"A\", \"C\", \"D\"]`. `reduce(\"\", (a, b) -> a + b)`는 빈 문자열 초기값으로 문자열을 누적 결합 — `ACD`. 스트림 파이프라인의 게으름(laziness), 부수 효과 없음, 단일 결과 같은 특성을 보여주는 고전적인 예시입니다.",
+        "xp": 15
+      },
+      {
+        "id": "gl-18",
+        "type": "mcq",
+        "chapter": "generics-lambdas",
+        "prompt": "`list.parallelStream()`에 대한 설명으로 **옳지 않은** 것은?",
+        "choices": [
+          "내부적으로 `ForkJoinPool.commonPool()`을 사용한다.",
+          "스트림 원소가 순서대로 처리됨이 보장된다.",
+          "상태 있는 연산(`sorted`, `distinct`)은 성능이 떨어질 수 있다.",
+          "스레드 안전한 컬렉션을 다룰 때는 추가 동기화가 필요 없다."
+        ],
+        "answer": 1,
+        "explanation": "병렬 스트림은 `ForkJoinPool.commonPool()`을 공유 스레드 풀로 사용하고, **처리 순서는 보장되지 않습니다** (순서가 필요하면 `forEachOrdered`를 명시). 상태 있는 중간 연산(`sorted`, `distinct`, `limit`)은 내부 상태를 유지해야 해서 직렬보다 느릴 수 있어요. 또 mutable 공유 객체를 누적하면서 쓰면 race condition이 발생할 수 있어 주의가 필요합니다.",
+        "xp": 10
+      },
+      {
+        "id": "gl-19",
+        "type": "fill",
+        "chapter": "generics-lambdas",
+        "prompt": "다음 코드의 빈칸을 채워 의도대로 동작하는 람다/함수형 인터페이스 사용을 완성하시오.\n\n```java\nFunction<Integer, Integer> square = ____ (x) -> x * x;     // 1: 불필요한 타입 추론 키워드\nPredicate<String> isLong = ____ s -> s.length() > 5;        // 2: 타입 추론 키워드\nConsumer<String> print = s ____ System.out::println;        // 3: 메서드 레퍼런스 연결\nSupplier<Long> now = System::____;                          // 4: 현재 시각(ms) 메서드\n```",
+        "blanks": [
+          {
+            "placeholder": "키워드",
+            "answer": [
+              "(Integer)"
+            ],
+            "hint": "명시적 타입이면 (Integer)..."
+          },
+          {
+            "placeholder": "키워드",
+            "answer": [
+              "(String)"
+            ],
+            "hint": "명시적 타입이면 (String)..."
+          },
+          {
+            "placeholder": "기호",
+            "answer": [
+              "->"
+            ],
+            "hint": "람다의 화살표"
+          },
+          {
+            "placeholder": "메서드",
+            "answer": [
+              "currentTimeMillis"
+            ],
+            "hint": "System의 현재 ms 메서드"
+          }
+        ],
+        "explanation": "람다에서 타입은 컴파일러가 추론할 수 있으면 생략 가능하지만, 의도를 명확히 하거나 모호한 경우 `(Integer x) -> ...`처럼 명시할 수 있습니다. `Consumer<String>`은 `s -> System.out.println(s)`를 메서드 레퍼런스 `System.out::println`으로 줄인 것이고, `System::currentTimeMillis`는 정적 메서드 레퍼런스로 `() -> System.currentTimeMillis()`의 축약입니다.",
+        "xp": 20
+      },
+      {
+        "id": "gl-20",
+        "type": "fill",
+        "chapter": "generics-lambdas",
+        "prompt": "다음 코드의 빈칸을 채워 \"짝수만 골라 제곱한 후 합계\"를 구하는 스트림 파이프라인을 완성하시오.\n\n```java\nint sum = IntStream.rangeClosed(1, 10)\n    .____(n -> n % 2 == 0)        // 1: 짝수만 남기기\n    .____(n -> n * n)             // 2: 제곱\n    .____();                       // 3: 합계\nSystem.out.println(sum);  // 4+16+36+64+100 = 220\n```",
+        "blanks": [
+          {
+            "placeholder": "메서드",
+            "answer": [
+              "filter"
+            ],
+            "hint": "조건을 만족하는 원소만 통과"
+          },
+          {
+            "placeholder": "메서드",
+            "answer": [
+              "map"
+            ],
+            "hint": "원소를 다른 값으로 변환"
+          },
+          {
+            "placeholder": "메서드",
+            "answer": [
+              "sum"
+            ],
+            "hint": "IntStream의 합계 메서드"
+          }
+        ],
+        "explanation": "`IntStream.rangeClosed(1, 10)`은 1~10 정수 스트림. `filter`로 짝수만, `mapToInt(n -> n*n)` 또는 `map(n -> n*n)`으로 제곱. `IntStream`은 박싱 없이 `sum()`, `average()`, `max()`, `min()` 같은 **원시 타입 전용 집계 메서드**를 제공해 효율적입니다. 결과: 4+16+36+64+100=220.",
+        "xp": 20
+      }
+    ]
   }
 ]
