@@ -305,10 +305,10 @@ export const chapters = [
   {
     id: 'oop',
     title: '객체지향',
-    blurb: '클래스, 상속, 다형성, 캡슐화 — 객체지향 4기둥을 인터랙티브하게.',
+    blurb: '클래스, 상속, 다형성, 캡슐화, SOLID — 객체지향 4기둥과 5원칙.',
     track: 'Java',
     order: 2,
-    estMinutes: 30,
+    estMinutes: 50,
     questions: [
       {
         id: 'oop-01',
@@ -352,6 +352,147 @@ export const chapters = [
         explanation:
           '`class Dog extends Animal`. 자바는 단일 상속만 허용합니다. 인터페이스 구현은 `implements`이고, `super`는 부모 생성자/메서드 호출에 씁니다.',
         xp: 10,
+      },
+      {
+        id: 'oop-04',
+        type: 'mcq',
+        chapter: 'oop',
+        prompt: '자바의 인터페이스(interface)에 대한 설명으로 옳은 것은?',
+        choices: [
+          '인스턴스 필드를 가질 수 있다 (Java 8 이전과 동일).',
+          '메서드는 기본적으로 `public abstract` 다.',
+          '한 클래스에서 여러 인터페이스를 구현할 수 없다.',
+          '생성자를 가질 수 있다.',
+        ],
+        answer: 1,
+        explanation:
+          '인터페이스의 메서드는 기본적으로 `public abstract`입니다. Java 8부터 `default`/`static` 메서드로 구현을 가질 수 있게 됐고, Java 9부터 `private` 메서드도 가능해졌어요. 다중 구현(`implements A, B`)은 자유롭고, 인터페이스는 생성자를 가질 수 없습니다.',
+        xp: 15,
+      },
+      {
+        id: 'oop-05',
+        type: 'mcq',
+        chapter: 'oop',
+        prompt: '`abstract` 클래스와 `interface`의 차이로 가장 적절한 것은?',
+        choices: [
+          'abstract 클래스는 다중 상속이 가능하다.',
+          'interface는 필드를 가질 수 없다.',
+          'abstract 클래스는 상태(필드)와 부분 구현을 가질 수 있다.',
+          'interface의 모든 메서드는 항상 public이다.',
+        ],
+        answer: 2,
+        explanation:
+          'abstract 클래스는 일반 필드와 일반 메서드를 가질 수 있어 "is-a" 관계의 공통 구현을 모으는 데 쓰입니다. 인터페이스는 본래 "기능 계약"을 표현하는 용도였고, Java 8 이후 default 메서드로 구현이 일부 가능해졌지만 상태(인스턴스 필드)는 못 가져요. 둘 다 메서드는 `public`이 기본.',
+        xp: 15,
+      },
+      {
+        id: 'oop-06',
+        type: 'mcq',
+        chapter: 'oop',
+        prompt: 'SOLID 원칙 중 "확장에는 열려 있고, 변경에는 닫혀 있어야 한다"는 것은?',
+        choices: [
+          'Single Responsibility (단일 책임)',
+          'Open/Closed (개방-폐쇄)',
+          'Liskov Substitution (리스코프 치환)',
+          'Dependency Inversion (의존성 역전)',
+        ],
+        answer: 1,
+        explanation:
+          '개방-폐쇄 원칙(OCP): 기존 코드를 수정하지 않고도 새 기능을 추가할 수 있어야 한다는 뜻. 다형성/추상화를 통해 보통 만족합니다. SRP는 "한 클래스는 하나의 책임만", LSP는 "자식 타입은 부모 타입을 대체할 수 있어야", DIP는 "구체 타입이 아닌 추상에 의존하라".',
+        xp: 15,
+      },
+      {
+        id: 'oop-07',
+        type: 'mcq',
+        chapter: 'oop',
+        prompt: '리스코프 치환 원칙(LSP)을 어기는 흔한 예는?',
+        choices: [
+          '자식 클래스가 부모의 동작을 그대로 오버라이드한다.',
+          '자식 클래스가 부모 메서드의 의미를 바꿔서, 부모 타입 자리에 넣으면 동작이 깨진다.',
+          '자식 클래스가 부모 생성자를 호출한다.',
+          '자식 클래스에 새로운 메서드를 추가한다.',
+        ],
+        answer: 1,
+        explanation:
+          'LSP 위반의 전형: `Square extends Rectangle`인데 `setWidth`/`setHeight`를 오버라이드해 직각을 강제하면, `Rectangle` 자리에서 사용하는 코드가 깨집니다. 정사각형이 직사각형의 의미적 부분집합이 *아니라* 일반화 관계가 잘못된 거예요. 단순히 메서드 추가나 생성자 호출은 위반이 아닙니다.',
+        xp: 15,
+      },
+      {
+        id: 'oop-08',
+        type: 'mcq',
+        chapter: 'oop',
+        prompt: '`@Override` 어노테이션을 다는 이유로 가장 적절한 것은?',
+        choices: [
+          '런타임에 메서드 호출이 빨라진다.',
+          '오버라이드하려는 시그니처가 부모에 없으면 컴파일 에러로 잡아준다.',
+          '자식 클래스에서만 쓸 수 있는 접근 제어자를 자동으로 부여한다.',
+          '자동으로 `final` 키워드가 붙는다.',
+        ],
+        answer: 1,
+        explanation:
+          '`@Override`는 시그니처 오타(매개변수 다름 등)로 오버로드가 되어버리는 실수를 컴파일러가 잡아주게 합니다. 성능 최적화나 final 자동화 같은 효과는 없어요.',
+        xp: 10,
+      },
+      {
+        id: 'oop-09',
+        type: 'mcq',
+        chapter: 'oop',
+        prompt: '다음 중 생성자(Constructor)에 대한 설명으로 옳은 것은?',
+        choices: [
+          '반환 타입을 명시해야 한다.',
+          '클래스 이름과 다른 이름으로 정의할 수 있다.',
+          '명시적으로 정의하지 않으면 컴파일러가 기본 생성자(no-args)를 자동으로 추가해준다 (필드 초기화는 안 함).',
+          '한 클래스에는 생성자를 하나만 정의할 수 있다.',
+        ],
+        answer: 2,
+        explanation:
+          '생성자는 반환 타입이 없고, 이름은 클래스 이름과 같아야 합니다. 매개변수가 다른 여러 생성자를 오버로딩할 수 있어요. 직접 어떤 생성자든 만들면 컴파일러는 더 이상 기본 생성자를 자동으로 추가하지 않습니다 — 이게 흔한 "no-args 생성자 없다" 함정의 원인.',
+        xp: 15,
+      },
+      {
+        id: 'oop-10',
+        type: 'mcq',
+        chapter: 'oop',
+        prompt: '`final`로 선언된 클래스에 대한 설명으로 옳은 것은?',
+        choices: [
+          '이 클래스는 인스턴스화할 수 없다.',
+          '이 클래스는 상속할 수 없다 (서브클래스를 만들 수 없다).',
+          '이 클래스의 모든 메서드는 자동으로 `static` 이 된다.',
+          '이 클래스의 모든 필드는 자동으로 `volatile` 이 된다.',
+        ],
+        answer: 1,
+        explanation:
+          '`final class`는 상속이 금지되어 서브클래스를 만들 수 없습니다. 대표 예: `String`, `Integer` 같은 불변 값 객체. 인스턴스화는 막지 않아요(생성자가 `private`인 경우만 막힘). `static`/`volatile`과는 무관합니다.',
+        xp: 10,
+      },
+      {
+        id: 'oop-11',
+        type: 'fill',
+        chapter: 'oop',
+        prompt:
+          '다음 코드의 출력은?\n\n```java\nclass A { String name = "A"; }\nclass B extends A { String name = "B"; }\nA x = new B();\nSystem.out.println(x.____);\n```\n\n빈칸: `x`의 *컴파일 시점* 타입에 있는 필드 `name`을 출력하려면? (자바 키워드 또는 식)',
+        blanks: [
+          { placeholder: 'expr', answer: ['name'], hint: '필드 이름 그대로' },
+        ],
+        explanation:
+          '자바의 필드는 다형적이지 않습니다. `x`의 컴파일 타입이 `A`이므로 `x.name`은 A의 name ("A")을 가리킵니다. 메서드와 다르게 필드는 *오버라이드*가 아니라 *섀도잉*이에요. 메서드는 실제 객체 타입의 구현이 실행되지만 필드는 참조 변수의 선언 타입이 결정합니다.',
+        xp: 20,
+      },
+      {
+        id: 'oop-12',
+        type: 'mcq',
+        chapter: 'oop',
+        prompt: '의존성 주입(Dependency Injection)의 핵심 이점으로 가장 적절한 것은?',
+        choices: [
+          '객체의 생성 속도가 빨라진다.',
+          '클래스가 직접 의존 객체를 만들지 않아 결합도가 낮아지고 테스트가 쉬워진다.',
+          'JVM의 가비지 컬렉션 부담이 줄어든다.',
+          'final 키워드를 더 많이 쓸 수 있게 된다.',
+        ],
+        answer: 1,
+        explanation:
+          'DI의 핵심은 *제어의 역전*: 객체가 필요한 의존성을 직접 `new`하지 않고 외부에서 주입받습니다. 그러면 구현체를 쉽게 교체할 수 있고, 테스트 시에는 모의 객체(mock)를 끼워 넣을 수 있어요. 성능/GC와는 직접 관계가 없습니다.',
+        xp: 15,
       },
     ] satisfies Question[],
   },
