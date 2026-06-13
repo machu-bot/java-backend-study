@@ -109,8 +109,8 @@ button { font-family: inherit; }
   background: var(--text); color: var(--bg);
   font-family: var(--font-mono); font-size: 0.95rem; line-height: 1; font-weight: 700;
 }
-.brand-name { font-family: var(--font-mono); font-size: 0.86rem; letter-spacing: -0.01em; }
-.nav-links { display: flex; gap: 22px; align-items: center; }
+.brand-name { font-family: var(--font-mono); font-size: 0.86rem; letter-spacing: -0.01em; display: none; }
+.nav-links { display: none; gap: 22px; align-items: center; }
 .nav-links a {
   color: var(--text-2); font-size: 0.88rem;
   text-decoration: none; transition: color 120ms ease;
@@ -367,14 +367,24 @@ button { font-family: inherit; }
   *, *::before, *::after { transition: none !important; animation: none !important; }
 }
 
+/* 가로 오버플로 가드: 어떤 큰 콘텐츠도 페이지 전체를 가로로 늘리지 않게 */
+html, body { overflow-x: hidden; max-width: 100%; }
+
+/* Desktop: 721px 이상 — 인라인 nav-links, burger 숨김 */
+@media (min-width: 721px) {
+  .nav-links { display: flex; }
+  .nav-burger { display: none; }
+  .brand-name { display: inline; }
+}
+
 /* Mobile */
 @media (max-width: 720px) {
   .shell { padding: 0 18px 80px; }
 
-  /* 모바일: 내비 링크 숨기고 햄버거 노출 */
+  /* 모바일: 내비 링크 숨기고 햄버거 노출 (데스크톱 미디어쿼리에서 다시 표시) */
   .nav-links { display: none; }
   .nav-burger { display: inline-flex; }
-  .brand-name { display: none; } /* 공간 절약: 로고 마크만 */
+  .brand-name { display: none; }
   .streak-pill { padding: 4px 8px; font-size: 0.74rem; }
   .streak-pill [data-streak-text] { font-size: 0.74rem; }
 
@@ -401,9 +411,12 @@ button { font-family: inherit; }
   .stat .value { font-size: 1.25rem; }
   .stat .label { font-size: 0.68rem; }
 
-  /* 코드 블록: 모바일에서 가로 스크롤 + 좁은 폰트 */
-  pre { font-size: 0.78rem; padding: 12px 14px; border-radius: 8px; }
-  pre code { font-size: 0.78rem; }
+  /* 코드 블록: 모바일에서는 가로 스크롤 대신 줄바꿈 — 페이지 가로폭 확장 방지 */
+  pre {
+    white-space: pre-wrap;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+  }
 
   /* 인라인 코드: 줄바꿈 허용 */
   :not(pre) > code {
@@ -426,9 +439,11 @@ button { font-family: inherit; }
   .quiz-prompt { font-size: 0.92rem; }
 }
 
-/* Burger 버튼 — 모바일에서만 보임 */
+/* Mobile-first base */
+
+/* Burger 버튼 — 모바일 기본 노출 (데스크톱에서만 숨김) */
 .nav-burger {
-  display: none;
+  display: inline-flex;
   width: 36px; height: 36px;
   align-items: center; justify-content: center;
   flex-direction: column; gap: 4px;
