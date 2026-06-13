@@ -254,8 +254,47 @@ button { font-family: inherit; }
 .quiz-prompt {
   font-size: 0.96rem; line-height: 1.7; margin-bottom: 14px; color: var(--text);
 }
+.quiz-prompt p { margin: 0; }
 .quiz-prompt pre {
-  margin: 8px 0; font-size: 0.82rem;
+  margin: 10px 0; font-size: 0.82rem;
+}
+/* prompt 안의 실제 코드 블록 — 펜스로 감싼 부분 */
+.quiz-prompt pre.q-code {
+  background: #0d0d0d;
+  border: 1px solid var(--border-2);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  line-height: 1.55;
+  color: #e6e6e6;
+  overflow-x: auto;
+  white-space: pre;
+  word-break: normal;
+  tab-size: 2;
+}
+.quiz-prompt pre.q-code code {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  color: inherit;
+  font-family: inherit;
+  font-size: inherit;
+  border-radius: 0;
+}
+.quiz-prompt pre.q-code code.lang-java::before,
+.quiz-prompt pre.q-code code[class*="lang-"] {
+  /* lang 표시는 시각적으로 표시하지 않음 (코드만 강조) */
+}
+/* prompt 안의 인라인 코드 (`code`) */
+.quiz-prompt code:not(pre code) {
+  background: var(--accent-low);
+  color: var(--accent);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0 5px;
+  font-size: 0.88em;
 }
 .choices { display: grid; gap: 8px; }
 .choice {
