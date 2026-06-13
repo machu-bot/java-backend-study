@@ -1,6 +1,6 @@
 ---
 /**
- * Nav — sticky top nav. 다크/라이트 토글, Streak 알약.
+ * Nav — sticky top nav. 데스크톱은 인라인, 모바일은 햄버거 + drawer.
  * `import.meta.env.BASE_URL`을 자동으로 prefix로 붙여 GitHub Pages subpath에서도 동작.
  */
 export interface Props {
@@ -8,19 +8,25 @@ export interface Props {
 }
 const { active } = Astro.props;
 const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
+
+const links = [
+  { href: base, label: '홈', key: 'home' },
+  { href: `${base}tracks/`, label: '트랙', key: 'tracks' },
+  { href: `${base}practice/`, label: '문제 풀기', key: 'practice' },
+  { href: `${base}dashboard/`, label: '대시보드', key: 'dashboard' },
+] as const;
 ---
 
-<header class="nav">
+<header class="nav" data-nav>
   <a href={base} class="brand">
     <span class="brand-mark">J</span>
     <span class="brand-name">java-backend-study</span>
   </a>
-  <nav class="nav-links">
-    <a href={base} class={active === 'home' ? 'active' : ''}>홈</a>
-    <a href={`${base}tracks/`} class={active === 'tracks' ? 'active' : ''}>트랙</a>
-    <a href={`${base}practice/`} class={active === 'practice' ? 'active' : ''}>문제 풀기</a>
-    <a href={`${base}dashboard/`} class={active === 'dashboard' ? 'active' : ''}>대시보드</a>
+
+  <nav class="nav-links" data-nav-links>
+    {links.map((l) => <a href={l.href} class={active === l.key ? 'active' : ''}>{l.label}</a>)}
   </nav>
+
   <div class="nav-actions">
     <streak-pill class="pill" title="오늘의 streak">
       <span class="dot" data-streak-dot></span>
@@ -32,8 +38,33 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
       aria-label="테마 토글"
       title="라이트/다크 모드"
     >◐</button>
+    <button
+      class="nav-burger"
+      data-nav-burger
+      aria-label="메뉴 열기"
+      aria-expanded="false"
+    ><span></span><span></span><span></span></button>
   </div>
 </header>
+
+<div class="nav-drawer" data-nav-drawer hidden>
+  <button class="drawer-backdrop" data-nav-close aria-label="메뉴 닫기"></button>
+  <aside class="drawer-panel">
+    <div class="drawer-head">
+      <span class="brand">
+        <span class="brand-mark">J</span>
+        <span class="brand-name">java-backend-study</span>
+      </span>
+      <button class="drawer-close" data-nav-close aria-label="닫기">✕</button>
+    </div>
+    <nav class="drawer-links">
+      {links.map((l) => <a href={l.href} class={active === l.key ? 'active' : ''}>{l.label}</a>)}
+    </nav>
+    <div class="drawer-foot tiny muted">
+      매일 한 문제, streak를 이어가요.
+    </div>
+  </aside>
+</div>
 
 <script>
   // Streak pill
@@ -56,5 +87,33 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
     try {
       localStorage.setItem('jbs:theme', next);
     } catch {}
+  });
+
+  // Mobile drawer
+  const burger = document.querySelector<HTMLButtonElement>('[data-nav-burger]');
+  const drawer = document.querySelector<HTMLElement>('[data-nav-drawer]');
+  const closers = document.querySelectorAll<HTMLElement>('[data-nav-close]');
+
+  const open = () => {
+    if (!drawer) return;
+    drawer.hidden = false;
+    requestAnimationFrame(() => drawer.classList.add('open'));
+    burger?.setAttribute('aria-expanded', 'true');
+    document.body.style.overflow = 'hidden';
+  };
+  const close = () => {
+    if (!drawer) return;
+    drawer.classList.remove('open');
+    burger?.setAttribute('aria-expanded', 'false');
+    document.body.style.overflow = '';
+    setTimeout(() => {
+      if (!drawer.classList.contains('open')) drawer.hidden = true;
+    }, 200);
+  };
+
+  burger?.addEventListener('click', open);
+  closers.forEach((el) => el.addEventListener('click', close));
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && drawer?.classList.contains('open')) close();
   });
 </script>
