@@ -1010,5 +1010,333 @@
         "xp": 20
       }
     ]
+  },
+  {
+    "id": "exceptions",
+    "title": "예외 처리",
+    "blurb": "try/catch/finally, checked vs unchecked, throw vs throws, try-with-resources, 예외 연쇄, Optional — 자바 예외 처리의 모든 것.",
+    "track": "Java",
+    "order": 5,
+    "estMinutes": 70,
+    "questions": [
+      {
+        "id": "ex-01",
+        "type": "mcq",
+        "chapter": "exceptions",
+        "prompt": "다음 중 **`try-catch`** 문에 대한 설명으로 옳은 것은?",
+        "choices": [
+          "예외가 발생하지 않으면 `catch` 블록은 실행되지 않는다.",
+          "`catch` 블록은 여러 개 작성할 수 있지만, 가장 **구체적인** 타입부터 위쪽에 작성해야 한다.",
+          "`try` 블록 안에서 선언한 변수를 `catch` 블록에서 사용할 수 있다.",
+          "`catch` 블록 안에서 또 다른 예외를 던질 수 없다."
+        ],
+        "answer": 1,
+        "explanation": "Java의 `catch`는 **순서대로** 매칭됩니다. 부모 타입(`Exception`)을 먼저 쓰면 자식 타입(`IOException`) catch가 도달하지 못해 컴파일 에러가 납니다. 또한 try 블록의 변수는 scope상 catch에서 보이지 않고, catch 블록은 자유롭게 다른 예외를 던질 수 있어요.",
+        "xp": 10
+      },
+      {
+        "id": "ex-02",
+        "type": "mcq",
+        "chapter": "exceptions",
+        "prompt": "다음 중 **Unchecked Exception**에 해당하는 것은?",
+        "choices": [
+          "`IOException`",
+          "`SQLException`",
+          "`NullPointerException`",
+          "`ClassNotFoundException`"
+        ],
+        "answer": 2,
+        "explanation": "Unchecked Exception은 `RuntimeException`을 상속한 예외들로, 컴파일러가 처리를 강제하지 않습니다 — NPE, `IllegalArgumentException`, `IndexOutOfBoundsException` 등. 나머지는 모두 checked exception으로, 컴파일러가 try-catch 또는 throws 선언을 요구합니다.",
+        "xp": 10
+      },
+      {
+        "id": "ex-03",
+        "type": "mcq",
+        "chapter": "exceptions",
+        "prompt": "다음 중 `throw`와 `throws`의 차이에 대한 설명으로 옳은 것은?",
+        "choices": [
+          "`throw`는 메서드 선언에 쓰고, `throws`는 예외를 실제로 던질 때 쓴다.",
+          "`throw`는 예외를 **실제로 던질 때** 쓰고, `throws`는 메서드 선언에 써 호출자에게 예외를 **전파**한다.",
+          "둘은 같은 의미이며 이름만 다르다.",
+          "`throws`는 checked exception에만 쓸 수 있다."
+        ],
+        "answer": 1,
+        "explanation": "`throw new IllegalStateException()`은 **실제 예외 인스턴스를 던지는** 키워드. `throws IOException`은 메서드 시그니처에 적어 그 메서드가 호출자에게 예외를 전파한다고 **선언**하는 키워드. throws는 checked/unchecked 모두 쓸 수 있지만(unchecked는 옵션), 컴파일러 강제는 checked에만 적용됩니다.",
+        "xp": 10
+      },
+      {
+        "id": "ex-04",
+        "type": "mcq",
+        "chapter": "exceptions",
+        "prompt": "다음 코드의 출력은?\n\n```java\npublic static int test() {\n    try {\n        return 1;\n    } catch (Exception e) {\n        return 2;\n    } finally {\n        System.out.print(\"F\");\n    }\n}\n\nSystem.out.print(test());\n```",
+        "choices": [
+          "1",
+          "2",
+          "F1",
+          "1F"
+        ],
+        "answer": 2,
+        "explanation": "finally 블록은 try/catch의 return **이전에** 실행됩니다. `return 1`을 만나도 finally의 `System.out.print(\"F\")`가 먼저 실행되고, 그 다음에 1이 반환됩니다. 따라서 출력은 `F1`. finally는 예외 발생 여부와 return 여부와 무관하게 항상 실행되는 게 자바의 약속이에요.",
+        "xp": 15
+      },
+      {
+        "id": "ex-05",
+        "type": "mcq",
+        "chapter": "exceptions",
+        "prompt": "다음 코드의 출력은?\n\n```java\npublic static int test() {\n    try {\n        return 1;\n    } finally {\n        return 2;\n    }\n}\n\nSystem.out.print(test());\n```",
+        "choices": [
+          "1",
+          "2",
+          "컴파일 에러",
+          "런타임 에러"
+        ],
+        "answer": 1,
+        "explanation": "finally 블록 안에서 `return`을 쓰면 try의 return 값을 **덮어씁니다** — 이건 안 좋은 패턴이고 많은 정적 분석 도구가 경고합니다(예: SonarQube). 결과는 2. try의 1은 결국 버려져요. 가능하면 finally에서는 부수 효과(close, log)만 하고 return은 피하세요.",
+        "xp": 15
+      },
+      {
+        "id": "ex-06",
+        "type": "mcq",
+        "chapter": "exceptions",
+        "prompt": "**try-with-resources** 문에 대한 설명으로 옳은 것은?",
+        "choices": [
+          "`AutoCloseable`을 구현한 객체만 `try (...)` 안에 선언할 수 있다.",
+          "try 블록 안에서 자원을 명시적으로 `close()` 호출해야 한다.",
+          "예외 발생 시 자원이 자동으로 닫히지 않는다.",
+          "Java 7 이전부터 지원된다."
+        ],
+        "answer": 0,
+        "explanation": "try-with-resources는 Java 7에서 도입되었고, `AutoCloseable`(`close()` 메서드)을 구현한 객체만 `try (...)`에 선언할 수 있습니다. 블록이 끝나면 자원이 **자동으로 `close()`**되고, close 중 발생한 예외는 suppressed로 처리돼요. `BufferedReader`, `Connection`, `InputStream` 같은 표준 자원은 대부분 구현하고 있습니다.",
+        "xp": 10
+      },
+      {
+        "id": "ex-07",
+        "type": "mcq",
+        "chapter": "exceptions",
+        "prompt": "다음 코드의 의미로 옳은 것은?\n\n```java\ntry {\n    doSomething();\n} catch (IOException | SQLException e) {\n    logger.error(e);\n    throw e;\n}\n```",
+        "choices": [
+          "`IOException`과 `SQLException`을 **동시에** 잡는다.",
+          "`IOException`이 **먼저** 발생하면 `SQLException`은 무시된다.",
+          "두 예외 타입이 부모-자식 관계여야 한다.",
+          "Java 8 이전 문법이다."
+        ],
+        "answer": 0,
+        "explanation": "Java 7부터 `catch (A | B e)`로 여러 예외 타입을 **하나의 catch 블록**으로 처리할 수 있습니다. 이때 `e`는 `A`와 `B`의 공통 조상 타입으로 추론되고, 두 예외가 부모-자식 관계이면 **컴파일 에러**(상속 관계인 타입은 `|`로 묶을 수 없음). 멀티 catch는 중복 catch 블록을 줄여줍니다.",
+        "xp": 10
+      },
+      {
+        "id": "ex-08",
+        "type": "mcq",
+        "chapter": "exceptions",
+        "prompt": "자바의 `Error` 클래스에 대한 설명으로 옳은 것은?",
+        "choices": [
+          "Error는 예외와 마찬가지로 catch해서 복구할 수 있다.",
+          "Error는 시스템 수준의 심각한 문제를 나타내며, 일반적으로 catch하지 **않는다**.",
+          "Error는 checked exception에 속한다.",
+          "Error는 RuntimeException을 상속한다."
+        ],
+        "answer": 1,
+        "explanation": "`Error`는 `Throwable`의 자식으로, `OutOfMemoryError`, `StackOverflowError`처럼 시스템 레벨의 심각한 상황을 나타냅니다. 일반적인 애플리케이션 코드에서 catch하는 건 권장되지 않고요. `Exception`은 checked/unchecked로 나뉘고, `Error`는 unchecked도 아니고 catch 강제도 없습니다.",
+        "xp": 10
+      },
+      {
+        "id": "ex-09",
+        "type": "mcq",
+        "chapter": "exceptions",
+        "prompt": "**예외 연쇄(exception chaining)** 의 주된 목적으로 옳은 것은?",
+        "choices": [
+          "예외 객체를 가비지 컬렉터에 빨리 회수시킨다.",
+          "원인 예외(cause)를 보존하면서 상위 수준의 예외로 변환해 던진다.",
+          "예외를 silent하게 무시한다.",
+          "예외를 자동으로 로깅한다."
+        ],
+        "answer": 1,
+        "explanation": "저수준 예외(`SQLException`)를 그대로 노출하면 내부 구현이 새어나가요. `throw new BusinessException(\"주문 처리 실패\", e)`처럼 `cause`를 전달하면 **원인 스택 트레이스**는 보존되면서 더 추상화된 예외로 바꿔 던질 수 있습니다. 모든 표준 예외 생성자에 `(String message, Throwable cause)`가 있어요.",
+        "xp": 10
+      },
+      {
+        "id": "ex-10",
+        "type": "mcq",
+        "chapter": "exceptions",
+        "prompt": "**checked** 사용자 정의 예외를 만들 때의 시그니처로 옳은 것은?",
+        "choices": [
+          "`class MyException extends RuntimeException { }`",
+          "`class MyException extends Exception { }`",
+          "`class MyException extends Error { }`",
+          "`class MyException extends Throwable { }`"
+        ],
+        "answer": 1,
+        "explanation": "Checked 예외를 만들려면 `Exception`을 직접 상속합니다 (또는 IOException 같은 checked 조상을 상속). `RuntimeException`을 상속하면 unchecked, `Error`/`Throwable`을 상속하면 시스템 레벨/추상 클래스로 의미가 달라져요. 관례적으로 4가지 표준 생성자(message / cause / message+cause / no-arg)를 모두 두는 게 좋습니다.",
+        "xp": 10
+      },
+      {
+        "id": "ex-11",
+        "type": "mcq",
+        "chapter": "exceptions",
+        "prompt": "`Throwable` 클래스가 제공하는 **예외 정보 추출** API로 옳은 것은?",
+        "choices": [
+          "`getMessage()`, `getCause()`, `printStackTrace()`",
+          "`getError()`, `getReason()`",
+          "`toException()`, `getStack()`",
+          "`errorCode()`, `errorMessage()`"
+        ],
+        "answer": 0,
+        "explanation": "`Throwable`은 `getMessage()`(생성자에 넘긴 메시지), `getCause()`(원인 예외), `getLocalizedMessage()`, `printStackTrace()`(스택 트레이스 출력), `getStackTrace()`(스택 프레임 배열) 등을 제공합니다. 직접 메시지/원인 추출은 `getMessage()` + `getCause()` 조합이 가장 흔해요.",
+        "xp": 10
+      },
+      {
+        "id": "ex-12",
+        "type": "mcq",
+        "chapter": "exceptions",
+        "prompt": "다음 코드의 결과는?\n\n```java\ntry {\n    throw new RuntimeException(\"first\");\n} finally {\n    throw new IllegalStateException(\"second\");\n}\n```",
+        "choices": [
+          "`RuntimeException(\"first\")`이 던져진다.",
+          "`IllegalStateException(\"second\")`이 던져진다.",
+          "두 예외가 모두 호출자에게 도달한다.",
+          "컴파일 에러"
+        ],
+        "answer": 1,
+        "explanation": "finally에서 새 예외를 던지면 try의 원래 예외는 **삼켜지고** finally의 예외만 던져집니다. 이건 디버깅을 어렵게 만드는 흔한 안티패턴이에요. try-with-resources에서는 자원의 close 중 예외가 발생하면 **suppressed**로 처리되어 try의 예외가 보존됩니다(`addSuppressed`).",
+        "xp": 15
+      },
+      {
+        "id": "ex-13",
+        "type": "mcq",
+        "chapter": "exceptions",
+        "prompt": "다음 중 **예외 처리 안티패턴**으로 가장 적절한 것은?",
+        "choices": [
+          "로깅 후 다시 던지기",
+          "비즈니스 예외로 변환해 던지기",
+          "빈 `catch` 블록으로 예외를 **삼키기**",
+          "호출자에게 책임을 전가하기 위해 `throws` 선언"
+        ],
+        "answer": 2,
+        "explanation": "빈 catch 블록(아무것도 안 하고 예외 무시)은 문제를 숨겨 디버깅을 거의 불가능하게 만듭니다. 최소한 로그라도 남겨야 하고, 처리할 수 없으면 다시 던지거나 비즈니스 예외로 변환하는 게 정상적인 패턴입니다. 정적 분석 도구(SonarQube, SpotBugs)가 모두 경고해요.",
+        "xp": 10
+      },
+      {
+        "id": "ex-14",
+        "type": "mcq",
+        "chapter": "exceptions",
+        "prompt": "try-with-resources에서 자원을 닫는 중에 예외가 발생하면 어떻게 되나?",
+        "choices": [
+          "try 블록의 예외가 **버려지고** close의 예외만 던져진다.",
+          "try 블록의 예외가 던져지고, close의 예외는 `addSuppressed`로 **보존**된다.",
+          "두 예외가 동시에 던져져 `ExceptionInInitializerError`가 발생한다.",
+          "둘 다 무시된다."
+        ],
+        "answer": 1,
+        "explanation": "try-with-resources는 try 블록에서 예외가 발생한 상태에서 close 중 새 예외가 발생해도, try의 예외가 메인으로 던져지고 close의 예외는 `Throwable.addSuppressed`로 **suppressed 예외**에 저장됩니다. `e.getSuppressed()`로 꺼내 확인할 수 있어요. 이게 finally에서 `close()`를 직접 부르는 것보다 큰 장점입니다.",
+        "xp": 15
+      },
+      {
+        "id": "ex-15",
+        "type": "mcq",
+        "chapter": "exceptions",
+        "prompt": "`Optional`에 대한 설명으로 **옳지 않은** 것은?",
+        "choices": [
+          "`Optional`은 null 대신 **값이 없을 수 있음**을 표현하기 위한 컨테이너다.",
+          "`Optional`을 직렬화(Serializable 구현)해서 네트워크로 보내는 것도 권장된다.",
+          "`Optional.of(null)`은 `NullPointerException`을 던진다.",
+          "`orElse`, `orElseGet`, `orElseThrow`로 값이 없을 때의 동작을 정의할 수 있다."
+        ],
+        "answer": 1,
+        "explanation": "`Optional`은 `Serializable`을 구현하지 **않고**, DTO/엔티티 필드로 쓰거나 외부 API 응답으로 직렬화하는 건 권장되지 않습니다. `Optional`은 메서드 반환 타입으로 \"결과가 없을 수 있다\"를 표현하는 게 주 용도. `Optional.of(null)`은 NPE, `Optional.ofNullable(null)`은 빈 `Optional`을 반환합니다.",
+        "xp": 10
+      },
+      {
+        "id": "ex-16",
+        "type": "mcq",
+        "chapter": "exceptions",
+        "prompt": "제네릭 메서드에서 예외를 던질 때 흔히 쓰는 패턴은?",
+        "choices": [
+          "`<T> T get() throws Exception`처럼 `throws Exception`을 항상 쓴다.",
+          "`<T extends Throwable> T sneakyThrow(Throwable t) { throw (T) t; }`처럼 unchecked처럼 던진다.",
+          "제네릭에서는 예외를 던질 수 없다.",
+          "반환 타입을 `Optional<T>`로 바꾸면 예외를 던지지 않아도 된다."
+        ],
+        "answer": 1,
+        "explanation": "제네릭 메서드는 어떤 예외 타입이 올지 컴파일 타임에 알 수 없어 `throws` 절에 타입 변수를 쓸 수 없습니다. 이 한계를 우회하려고 **sneaky throw**(타입 캐스팅으로 unchecked로 만드는) 패턴이 쓰이는데, Lombok의 `@SneakyThrows`가 대표적입니다. 단, 디버깅을 어렵게 하니 신중히 사용해야 해요.",
+        "xp": 10
+      },
+      {
+        "id": "ex-17",
+        "type": "mcq",
+        "chapter": "exceptions",
+        "prompt": "좋은 예외 메시지에 대한 설명으로 **옳지 않은** 것은?",
+        "choices": [
+          "예외가 **언제, 어디서, 왜** 발생했는지 알 수 있어야 한다.",
+          "민감한 정보(비밀번호, 토큰 등)를 메시지에 그대로 넣는다.",
+          "가능하면 문제 해결에 도움이 되는 **값**을 포함한다.",
+          "한 줄로 너무 길게 쓰지 않고 핵심을 전달한다."
+        ],
+        "answer": 1,
+        "explanation": "예외 메시지는 보통 **로그/모니터링**에 그대로 남기 때문에 비밀번호, 토큰, 개인 식별 정보 같은 민감 데이터는 절대 포함하면 안 됩니다. 메시지는 \"어떤 작업 중 어떤 값 때문에 실패했는가\"를 담는 게 이상적이에요. 예: `IllegalArgumentException(\"age must be >= 0, got \" + age)`.",
+        "xp": 10
+      },
+      {
+        "id": "ex-18",
+        "type": "mcq",
+        "chapter": "exceptions",
+        "prompt": "다음 중 `StackOverflowError`의 **주된 원인**으로 옳은 것은?",
+        "choices": [
+          "힙 메모리 부족",
+          "무한 재귀 호출로 콜 스택이 가득 참",
+          "디스크 풀",
+          "스레드 dead lock"
+        ],
+        "answer": 1,
+        "explanation": "StackOverflowError는 메서드 호출이 너무 깊어져 JVM의 콜 스택이 다 찬 경우 발생합니다. 거의 항상 **무한 재귀** 또는 너무 깊은 재귀(예: 큰 배열을 재귀로 정렬할 때 종료 조건 누락)가 원인. `OutOfMemoryError`는 힙 부족, `StackOverflowError`는 스택 부족으로 구분해 기억하세요.",
+        "xp": 10
+      },
+      {
+        "id": "ex-19",
+        "type": "fill",
+        "chapter": "exceptions",
+        "prompt": "다음 코드의 빈칸을 채워 의도대로 동작하는 예외 처리를 완성하시오.\n\n```java\npublic int parsePort(String s) {\n  try {\n    return Integer.parseInt(s);\n  } catch (____ NumberFormatException) {       // 1: 잡을 예외 타입\n    return -1;                                  // 잘못된 입력은 -1로\n  } ____ {                                      // 2: 항상 실행 블록\n    System.out.println(\"done\");\n  }\n}\n```",
+        "blanks": [
+          {
+            "placeholder": "키워드",
+            "answer": [
+              "catch"
+            ],
+            "hint": "예외 잡기 키워드"
+          },
+          {
+            "placeholder": "키워드",
+            "answer": [
+              "finally"
+            ],
+            "hint": "항상 실행 블록"
+          }
+        ],
+        "explanation": "Java의 표준 예외 처리 구조: `try { ... } catch (ExceptionType e) { ... } finally { ... }`. finally는 예외 발생/정상 종료 모두에서 실행되므로 자원 해제, 로그 출력 같은 **정리 작업**에 쓰입니다. Java 7+에서는 try-with-resources를 더 권장하지만, finally 패턴도 여전히 유효해요.",
+        "xp": 20
+      },
+      {
+        "id": "ex-20",
+        "type": "fill",
+        "chapter": "exceptions",
+        "prompt": "다음 코드의 빈칸을 채워 try-with-resources로 안전하게 자원을 다루는 코드를 완성하시오.\n\n```java\ntry (_____.Reader reader = new java.io.FileReader(path)) {  // 1: 추상 부모\n  return reader.readLine();\n} ____ (java.io.IOException e) {                            // 2: 예외 잡기\n  e.printStackTrace();\n  return null;\n}\n```",
+        "blanks": [
+          {
+            "placeholder": "클래스",
+            "answer": [
+              "Buffered"
+            ],
+            "hint": "성능 향상을 위해 FileReader를 감싸는 클래스"
+          },
+          {
+            "placeholder": "키워드",
+            "answer": [
+              "catch"
+            ],
+            "hint": "예외 잡기 키워드"
+          }
+        ],
+        "explanation": "`BufferedReader`는 내부 버퍼로 실제 read 호출 횟수를 줄여 I/O 성능을 크게 끌어올립니다. `try (BufferedReader reader = new BufferedReader(new FileReader(path)))` 패턴은 Java 7+의 표준 — 블록이 끝나면 `close()`가 자동 호출되고, close 중 예외가 나면 suppressed로 처리됩니다.",
+        "xp": 20
+      }
+    ]
   }
 ]
