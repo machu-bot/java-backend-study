@@ -1,5 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
+import { allQuestions } from '../lib/content';
+const total = allQuestions().length;
 ---
 
 <Base title="대시보드" active="dashboard">
@@ -8,7 +10,7 @@ import Base from '../layouts/Base.astro';
     <p class="lead">내 학습 진도, XP, streak, 배지를 한 곳에서 확인합니다.</p>
   </section>
 
-  <div id="dashboard-root" data-total="13"></div>
+  <div id="dashboard-root" data-total={total}></div>
 
   <div class="dash-card">
     <h3>초기화</h3>

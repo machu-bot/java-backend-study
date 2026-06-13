@@ -8,10 +8,10 @@ export const chapters = [
   {
     id: 'java-basics',
     title: 'Java 기초',
-    blurb: '변수, 자료형, 제어 흐름, 메서드까지 — 첫 30일의 기반을 다집니다.',
+    blurb: '변수, 자료형, 제어 흐름, 메서드, 컬렉션, 예외, 람다 — 첫 30일의 기반을 다집니다.',
     track: 'Java',
     order: 1,
-    estMinutes: 45,
+    estMinutes: 60,
     questions: [
       {
         id: 'jb-01',
@@ -151,6 +151,153 @@ export const chapters = [
         ],
         explanation:
           '`%`는 나머지 연산자입니다. 7 % 2 = 1. 홀짝 판별, 순환 인덱스 계산에 자주 쓰여요. `/`는 정수끼리 나누면 소수점을 버리므로 7 / 2 = 3이 됩니다(다른 결과).',
+        xp: 15,
+      },
+      {
+        id: 'jb-11',
+        type: 'mcq',
+        chapter: 'java-basics',
+        prompt: '자바의 `String` 클래스에 대한 설명으로 옳은 것은?',
+        choices: [
+          '원시 타입(primitive type)이다.',
+          '한 번 생성된 문자열은 내용이 변하지 않는다 (immutable).',
+          '`==` 연산자는 항상 문자열의 내용을 비교한다.',
+          '`new String("a")` 와 `"a"` 는 항상 같은 객체를 가리킨다.',
+        ],
+        answer: 1,
+        explanation:
+          '`String`은 참조 타입이며 한 번 만들어지면 내부 문자 배열이 바뀔 수 없습니다. 더하기 연산을 하면 새 `String` 인스턴스가 만들어져요. 같은 리터럴은 상수 풀에 캐시되지만 `new String(...)`은 새 객체라 `==`는 false가 될 수 있습니다.',
+        xp: 10,
+      },
+      {
+        id: 'jb-12',
+        type: 'mcq',
+        chapter: 'java-basics',
+        prompt: '다음 중 `ArrayList`에 대한 설명으로 옳지 않은 것은?',
+        choices: [
+          '크기가 가변적인 리스트다.',
+          '원시 타입(`int`, `double` 등)을 그대로 담을 수 없다.',
+          '인덱스로 접근하는 데 O(1) 시간이 든다.',
+          '중간에 원소를 삽입/삭제하는 데 항상 O(1) 시간이 든다.',
+        ],
+        answer: 3,
+        explanation:
+          '중간 삽입/삭제는 뒤의 원소들을 밀거나 당겨야 해서 평균 O(n)입니다. 끝에 추가/삭제하는 `add`/`remove(last)`만 amortized O(1)이라 보면 됩니다.',
+        xp: 15,
+      },
+      {
+        id: 'jb-13',
+        type: 'mcq',
+        chapter: 'java-basics',
+        prompt: '자바의 예외 처리에서 `try-catch-finally` 의 `finally` 블록에 대한 설명으로 옳은 것은?',
+        choices: [
+          '예외가 발생하지 않으면 절대 실행되지 않는다.',
+          '`return` 문을 만나도 `finally`는 실행된다.',
+          '`finally` 안에서는 예외를 던질 수 없다.',
+          '`catch` 블록이 없으면 `finally`를 단독으로 쓸 수 있다.',
+        ],
+        answer: 1,
+        explanation:
+          '`finally`는 예외 발생 여부, `return` 포함 어떤 경우에도 (정상 종료/예외/JVM 종료 일부 케이스 제외) 실행됩니다. 단독 `finally`는 자바 문법상 불가 — `try`가 필요해요. `finally`에서도 예외는 던질 수 있지만 보통 자제합니다.',
+        xp: 15,
+      },
+      {
+        id: 'jb-14',
+        type: 'mcq',
+        chapter: 'java-basics',
+        prompt: '다음 중 `HashMap`의 키로 사용하기에 가장 부적절한 타입은?',
+        choices: [
+          '`String`',
+          '`Integer`',
+          'equals와 hashCode를 오버라이드한 사용자 정의 클래스',
+          '가변 상태를 가진 가변 객체 (예: `StringBuilder`)',
+        ],
+        answer: 3,
+        explanation:
+          'HashMap은 키의 `hashCode()`로 버킷을 정합니다. 키 객체의 상태가 바뀔 수 있으면 `hashCode()` 결과도 같이 바뀌어 같은 키를 찾지 못할 수 있어요. 불변 객체나 `equals`/`hashCode`가 안정적인 값만 키로 쓰는 게 안전합니다.',
+        xp: 15,
+      },
+      {
+        id: 'jb-15',
+        type: 'mcq',
+        chapter: 'java-basics',
+        prompt: '자바의 접근 제어자 중 같은 패키지 안에서만 접근할 수 있는 것은?',
+        choices: ['private', 'default (package-private)', 'protected', 'public'],
+        answer: 1,
+        explanation:
+          '`private`는 같은 클래스, `default`는 같은 패키지, `protected`는 같은 패키지 + 자식 클래스, `public`은 어디서나. 별도 키워드가 없는 default 접근이 "패키지 전용"이에요.',
+        xp: 10,
+      },
+      {
+        id: 'jb-16',
+        type: 'mcq',
+        chapter: 'java-basics',
+        prompt: '다음 중 자바의 람다 표현식으로 옳은 것은?',
+        choices: [
+          '(int x, y) -> x + y',
+          '(x, y) -> { return x + y; }',
+          'x, y -> x + y',
+          'function(x) { return x * 2; }',
+        ],
+        answer: 1,
+        explanation:
+          '자바 람다는 `(매개변수) -> 본문` 형태. 매개변수 타입은 생략 가능하므로 `(x, y)`는 OK, `(int x, y)`처럼 일부만 적을 수 없습니다. 본문이 한 줄이면 중괄호와 `return` 생략 가능. 자바는 `function` 키워드가 없어요.',
+        xp: 15,
+      },
+      {
+        id: 'jb-17',
+        type: 'mcq',
+        chapter: 'java-basics',
+        prompt: '`Optional<String> name = Optional.ofNullable(getName());` 다음 중 옳은 사용은?',
+        choices: [
+          '`String n = name.get();` (값이 없을 수도 있는데 바로 꺼냄)',
+          '`String n = name.orElse("anonymous");`',
+          '`if (name == null) { ... }`',
+          '`if (name.isPresent() && name.get().length() > 0) { ... }` (위와 동등한 안전한 표현)',
+        ],
+        answer: 1,
+        explanation:
+          '`orElse`는 값이 없을 때 기본값을 돌려주므로 안전합니다. `get()`은 값이 없으면 `NoSuchElementException`. `Optional` 자체가 `null`이 될 일은 거의 없으니 `name == null` 비교는 보통 잘못된 사용이에요.',
+        xp: 15,
+      },
+      {
+        id: 'jb-18',
+        type: 'mcq',
+        chapter: 'java-basics',
+        prompt: '`var list = new ArrayList<String>();` 처럼 `var`를 쓸 수 있는 자바 버전은?',
+        choices: ['Java 8', 'Java 10', 'Java 14', 'Java 17'],
+        answer: 1,
+        explanation:
+          '지역 변수의 타입 추론 `var`는 Java 10에서 처음 도입됐습니다. (메서드 시그니처, 필드에는 여전히 못 써요.) 이후 Java 11~17에서 `var` 사용 범위가 점차 넓어졌지만, 처음 등장한 버전은 10.',
+        xp: 10,
+      },
+      {
+        id: 'jb-19',
+        type: 'fill',
+        chapter: 'java-basics',
+        prompt:
+          '다음 코드의 출력은?\n\n```java\nString s = "Hello";\nSystem.out.println(s._____(0));   // 빈칸: 대문자 H를 꺼내려면?\n```\n\n빈칸에 들어갈 메서드 이름을 쓰시오 (소문자).',
+        blanks: [
+          { placeholder: 'method', answer: ['charat'], hint: 'String에서 인덱스의 문자를 돌려주는 메서드' },
+        ],
+        explanation:
+          '`String.charAt(int index)`는 인덱스 위치의 `char`를 돌려줍니다. `s.charAt(0)` → `\'H\'`. 비슷한 이름에 `indexOf`는 문자의 위치를 찾는 메서드라 헷갈리기 쉬워요.',
+        xp: 15,
+      },
+      {
+        id: 'jb-20',
+        type: 'mcq',
+        chapter: 'java-basics',
+        prompt: '자바의 가비지 컬렉션(GC)에 대한 설명으로 가장 적절한 것은?',
+        choices: [
+          '개발자가 임의로 객체의 메모리를 해제할 수 있다.',
+          '더 이상 참조되지 않는 객체를 자동으로 회수한다.',
+          '메모리 누수가 절대 발생하지 않는다.',
+          '성능에 영향을 주지 않는다.',
+        ],
+        answer: 1,
+        explanation:
+          'GC의 핵심은 *도달 불가능*한 객체 — 어떤 살아있는 참조로도 도달할 수 없는 객체 — 를 자동으로 회수하는 것입니다. 개발자가 직접 free 할 수는 없어요. 다만 *도달 가능하지만 의도치 않게 잡혀 있는* 객체는 회수되지 않으므로 메모리 누수는 여전히 발생합니다. GC가 동작하는 동안에는 보통 Stop-The-World가 일어나 성능에 영향을 줍니다.',
         xp: 15,
       },
     ] satisfies Question[],
