@@ -4,7 +4,7 @@
  * MCQ / fill(빈칸) 두 가지 타입 지원.
  * 정답·해설·XP·streak은 클라이언트에서 store로 처리.
  */
-import { allQuestions, chapters } from '../lib/content';
+import { allQuestions, chapters, findChapter } from '../lib/content';
 import type { Question } from '../lib/store';
 import { renderPrompt } from '../lib/markdown';
 
@@ -12,7 +12,7 @@ export interface Props {
   chapterId: string;
 }
 const { chapterId } = Astro.props;
-const chapter = chapters.find((c) => c.id === chapterId);
+const chapter = findChapter(chapterId) ?? chapters.find((c) => c.id === chapterId);
 if (!chapter) throw new Error(`Chapter not found: ${chapterId}`);
 const questions = chapter.questions as unknown as Question[];
 const total = questions.length;

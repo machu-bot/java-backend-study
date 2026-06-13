@@ -1,0 +1,658 @@
+[
+  {
+    "id": "oop-basics",
+    "title": "OOP 기초",
+    "blurb": "클래스와 객체, 필드와 메서드, 생성자, 접근 제어, 캡슐화, static, 불변성 — 객체지향의 첫걸음.",
+    "track": "Java",
+    "order": 2,
+    "estMinutes": 70,
+    "questions": [
+      {
+        "id": "ob-01",
+        "type": "mcq",
+        "chapter": "oop-basics",
+        "prompt": "다음 중 **클래스**와 **객체**의 관계로 가장 정확한 설명은?",
+        "choices": [
+          "클래스는 객체를 담는 변수이고, 객체는 클래스 안의 메서드다.",
+          "클래스는 객체를 만들기 위한 설계도이고, 객체는 그 설계도로 만든 실체다.",
+          "클래스와 객체는 같은 의미이며, 부르는 명칭만 다르다.",
+          "객체는 한 번만 만들 수 있고, 클래스는 여러 번 만들 수 있다."
+        ],
+        "answer": 1,
+        "explanation": "클래스는 `new`로 찍어낼 수 있는 틀이고, 객체(인스턴스)는 그 틀로 만든 실체입니다. 한 클래스로 객체 여러 개를 만들 수 있고, 각 객체는 자신만의 필드 값을 가집니다.",
+        "xp": 10
+      },
+      {
+        "id": "ob-02",
+        "type": "mcq",
+        "chapter": "oop-basics",
+        "prompt": "다음 코드에서 **컴파일 에러**가 발생하는 줄은?\n\n```java\npublic class Counter {\n    int count;\n\n    public void increment(int n) {\n        count = count + n;\n        int temp = count * 2;\n        return temp;\n    }\n\n    public int getCount() {\n        return count;\n    }\n}\n```",
+        "choices": [
+          "`count = count + n;`",
+          "`int temp = count * 2;`",
+          "`return temp;` (increment 메서드 안)",
+          "`return count;` (getCount 메서드 안)"
+        ],
+        "answer": 2,
+        "explanation": "`increment`는 반환 타입이 `void`인데 `return temp;`로 값을 돌려보내려고 해서 컴파일 에러가 납니다. `void` 메서드는 값을 반환할 수 없고 `return;`만 가능하며, 생략도 가능합니다.",
+        "xp": 15
+      },
+      {
+        "id": "ob-03",
+        "type": "mcq",
+        "chapter": "oop-basics",
+        "prompt": "다음 코드의 출력은?\n\n```java\npublic class User {\n    String name;\n\n    public User() {\n        name = \"anonymous\";\n    }\n\n    public User(String name) {\n        this.name = name;\n    }\n}\n\nUser u = new User();\nSystem.out.println(u.name);\n```",
+        "choices": [
+          "anonymous",
+          "null",
+          "컴파일 에러",
+          "런타임 에러"
+        ],
+        "answer": 0,
+        "explanation": "`new User()`는 인자 없는 생성자를 호출하므로 `name = \"anonymous\"`가 실행됩니다. 매개변수 생성자를 만들었어도 자바가 기본 생성자를 자동으로 만들지 않지만, 여기서는 직접 정의해뒀기 때문에 둘 다 사용 가능합니다.",
+        "xp": 10
+      },
+      {
+        "id": "ob-04",
+        "type": "mcq",
+        "chapter": "oop-basics",
+        "prompt": "다음 코드에서 `this`가 가리키는 것은?\n\n```java\npublic class Point {\n    int x, y;\n\n    public Point(int x, int y) {\n        this.x = x;\n        this.y = y;\n    }\n}\n```",
+        "choices": [
+          "정적 클래스 Point 자체",
+          "현재 생성되고 있는 객체 인스턴스",
+          "첫 번째 매개변수 x",
+          "부모 클래스의 x 필드"
+        ],
+        "answer": 1,
+        "explanation": "`this`는 현재 메서드를 호출한 객체 인스턴스를 가리킵니다. 생성자에서 매개변수와 필드 이름이 같을 때 `this.x = x;`처럼 구분할 때 가장 흔히 쓰입니다.",
+        "xp": 10
+      },
+      {
+        "id": "ob-05",
+        "type": "mcq",
+        "chapter": "oop-basics",
+        "prompt": "다음 중 **접근 제어자가 없는** (default, package-private) 멤버에 대한 설명으로 옳은 것은?",
+        "choices": [
+          "어디서든 접근할 수 있다.",
+          "같은 패키지 안에서만 접근할 수 있다.",
+          "자식 클래스에서만 접근할 수 있다.",
+          "같은 클래스 안에서만 접근할 수 있다."
+        ],
+        "answer": 1,
+        "explanation": "접근 제어자를 붙이지 않으면 default(package-private) 접근으로, 같은 패키지 내의 다른 클래스에서는 접근 가능하지만 다른 패키지에서는 접근할 수 없습니다. `public`(전체), `protected`(패키지 + 자식), `private`(같은 클래스)와 구분됩니다.",
+        "xp": 10
+      },
+      {
+        "id": "ob-06",
+        "type": "mcq",
+        "chapter": "oop-basics",
+        "prompt": "캡슐화를 가장 잘 실천한 설계는?",
+        "choices": [
+          "필드를 `public`으로 선언하고 어디서든 직접 수정하게 한다.",
+          "필드는 `private`으로 숨기고, 검증 로직이 담긴 `public` getter/setter로만 접근하게 한다.",
+          "필드를 `protected`로 선언해 자식 클래스에서만 쓰게 한다.",
+          "모든 필드를 `static`으로 만들어 어디서든 클래스명으로 접근하게 한다."
+        ],
+        "answer": 1,
+        "explanation": "캡슐화의 핵심은 내부 상태를 `private`으로 숨기고, 의도가 드러난 메서드(getter/setter)를 통해서만 접근시키는 것입니다. setter에 검증 로직을 넣으면 잘못된 값이 객체로 흘러들어오는 것을 막을 수 있습니다.",
+        "xp": 10
+      },
+      {
+        "id": "ob-07",
+        "type": "mcq",
+        "chapter": "oop-basics",
+        "prompt": "다음 코드의 출력은?\n\n```java\npublic class Counter {\n    static int total = 0;\n    int id;\n\n    public Counter() {\n        total++;\n        id = total;\n    }\n}\n\nnew Counter();\nnew Counter();\nnew Counter();\nSystem.out.println(Counter.total);\n```",
+        "choices": [
+          "1",
+          "2",
+          "3",
+          "0"
+        ],
+        "answer": 2,
+        "explanation": "`static` 필드는 클래스당 하나만 존재하고 모든 인스턴스가 공유합니다. 생성자가 세 번 호출되면 `total`도 1→2→3으로 증가합니다. 반면 `id`는 인스턴스 필드라 각 객체마다 따로 존재합니다.",
+        "xp": 15
+      },
+      {
+        "id": "ob-08",
+        "type": "mcq",
+        "chapter": "oop-basics",
+        "prompt": "`static` 메서드 안에서 **할 수 없는 것**은?",
+        "choices": [
+          "다른 `static` 메서드를 호출하기",
+          "`static` 필드를 읽거나 수정하기",
+          "매개변수를 사용하는 계산하기",
+          "`this` 키워드를 사용하기"
+        ],
+        "answer": 3,
+        "explanation": "`static` 메서드는 특정 인스턴스에 묶여있지 않기 때문에 `this`를 쓸 수 없습니다. 인스턴스 필드에도 직접 접근할 수 없고, 인스턴스 메서드를 호출하려면 먼저 객체를 만들어야 합니다.",
+        "xp": 10
+      },
+      {
+        "id": "ob-09",
+        "type": "mcq",
+        "chapter": "oop-basics",
+        "prompt": "다음 중 메서드 **오버로딩이 성립하지 않는** 조합은?",
+        "choices": [
+          "`void print(int x)`와 `void print(long x)`",
+          "`void print(int x)`와 `int print(int x)`",
+          "`void print(int x, int y)`와 `void print(int x)`",
+          "`void print(int x)`와 `void print(String s)`"
+        ],
+        "answer": 1,
+        "explanation": "오버로딩은 **메서드 이름과 매개변수 목록**(개수, 타입, 순서)이 달라야 성립합니다. 반환 타입만 다른 2번은 같은 시그니처로 간주되어 컴파일 에러가 납니다. 호출 시 반환 타입만으로는 어느 메서드를 부를지 구분할 수 없기 때문입니다.",
+        "xp": 15
+      },
+      {
+        "id": "ob-10",
+        "type": "mcq",
+        "chapter": "oop-basics",
+        "prompt": "다음 중 `final` 필드에 대한 설명으로 **옳지 않은** 것은?",
+        "choices": [
+          "초기화 후에는 값을 변경할 수 없다.",
+          "선언 시 또는 생성자에서 한 번 초기화해야 한다.",
+          "`static final`로 선언하면 클래스 상수가 된다.",
+          "객체마다 다른 값으로 초기화할 수 없다."
+        ],
+        "answer": 3,
+        "explanation": "인스턴스 `final` 필드는 **객체마다** 다른 값으로 초기화할 수 있습니다. 다만 한 번 초기화되면 그 객체 안에서는 변경 불가입니다. `static final`은 진짜 클래스 상수라 모든 객체가 같은 값을 공유합니다.",
+        "xp": 10
+      },
+      {
+        "id": "ob-11",
+        "type": "mcq",
+        "chapter": "oop-basics",
+        "prompt": "다음 코드의 출력은?\n\n```java\npublic class Box {\n    int w, h, d;\n\n    public Box() {\n        this(1, 1, 1);\n    }\n\n    public Box(int w, int h, int d) {\n        this.w = w;\n        this.h = h;\n        this.d = d;\n    }\n\n    public int volume() {\n        return w * h * d;\n    }\n}\n\nBox b = new Box();\nSystem.out.println(b.volume());\n```",
+        "choices": [
+          "0",
+          "1",
+          "3",
+          "컴파일 에러"
+        ],
+        "answer": 1,
+        "explanation": "인자 없는 생성자는 `this(1, 1, 1)`로 다른 생성자를 호출해 모든 필드를 1로 초기화합니다. 따라서 부피는 1×1×1 = 1. `this(...)`는 생성자 안에서만 쓸 수 있고 반드시 첫 줄에 와야 합니다.",
+        "xp": 15
+      },
+      {
+        "id": "ob-12",
+        "type": "mcq",
+        "chapter": "oop-basics",
+        "prompt": "자바의 가비지 컬렉터(GC)에 대한 설명으로 가장 적절한 것은?",
+        "choices": [
+          "프로그래머가 직접 `delete`를 호출해 객체를 해제한다.",
+          "도달할 수 없는 객체를 JVM이 자동으로 메모리에서 해제한다.",
+          "GC가 동작하면 프로그램이 더 빨라진다.",
+          "C처럼 malloc/free를 명시적으로 호출해야 한다."
+        ],
+        "answer": 1,
+        "explanation": "자바는 JVM의 가비지 컬렉터가 **도달 불가능한(unreachable)** 객체를 자동으로 회수합니다. 프로그래머는 메모리 해제를 직접 신경 쓰지 않아도 되지만, GC가 동작하는 동안 일시 정지(STW)가 생길 수 있어 튜닝이 필요할 때도 있습니다.",
+        "xp": 10
+      },
+      {
+        "id": "ob-13",
+        "type": "mcq",
+        "chapter": "oop-basics",
+        "prompt": "다음 코드의 결과는?\n\n```java\nString s = null;\ns.length();\n```",
+        "choices": [
+          "0",
+          "컴파일 에러",
+          "NullPointerException",
+          "빈 문자열 반환"
+        ],
+        "answer": 2,
+        "explanation": "`s`가 `null`인 상태에서 메서드를 호출하면 런타임에 `NullPointerException`이 발생합니다. 컴파일은 통과되지만 실행 시점에 터집니다. `Optional`이나 명시적 null 체크로 미리 막는 게 좋습니다.",
+        "xp": 10
+      },
+      {
+        "id": "ob-14",
+        "type": "mcq",
+        "chapter": "oop-basics",
+        "prompt": "다음 코드의 출력은?\n\n```java\nInteger a = 200;\nInteger b = 200;\nSystem.out.println(a == b);\nSystem.out.println(a.equals(b));\n```",
+        "choices": [
+          "true, true",
+          "false, true",
+          "true, false",
+          "false, false"
+        ],
+        "answer": 1,
+        "explanation": "`Integer`는 -128~127 범위 안에서는 캐시되어 `==`도 true가 되지만, 200은 범위 밖이라 `==`는 참조 비교로 false입니다. `equals()`는 값 비교라 항상 true. 객체 비교는 항상 `equals()`를 쓰는 습관을 들이세요.",
+        "xp": 15
+      },
+      {
+        "id": "ob-15",
+        "type": "mcq",
+        "chapter": "oop-basics",
+        "prompt": "다른 패키지에 있는 클래스를 사용하려고 한다. **반드시 필요한** 것은?",
+        "choices": [
+          "해당 클래스를 `public`으로 선언",
+          "호출 측에 `import` 문 추가",
+          "호출 측에 같은 이름의 클래스 만들기",
+          "JVM 옵션에 패키지 경로 추가"
+        ],
+        "answer": 0,
+        "explanation": "다른 패키지에서 클래스에 접근하려면 그 클래스가 `public`이어야 하고, 호출 측에서는 `import`로 가져와야 합니다. import 없이 매번 풀 패키지 경로(`com.example.Foo`)를 쓸 수도 있지만, 이 경우에도 대상 클래스는 `public`이어야 합니다.",
+        "xp": 10
+      },
+      {
+        "id": "ob-16",
+        "type": "mcq",
+        "chapter": "oop-basics",
+        "prompt": "다음 중 **불변(immutable) 객체**로 설계된 클래스는?",
+        "choices": [
+          "모든 필드가 `public`이고 `final`이 아닌 클래스",
+          "필드가 모두 `private final`이고 setter가 없는 클래스",
+          "필드가 `private`이고 getter만 있는 클래스",
+          "`StringBuilder`"
+        ],
+        "answer": 1,
+        "explanation": "진짜 불변 객체는 ① 필드가 `private final`, ② setter가 없고, ③ 필드가 가변 객체 참조라면 그 참조도 외부에서 변경할 수 없게 막아야 합니다. `String`이 대표적이고, `StringBuilder`는 가변이라 불변 객체가 아닙니다.",
+        "xp": 10
+      },
+      {
+        "id": "ob-17",
+        "type": "mcq",
+        "chapter": "oop-basics",
+        "prompt": "Java 16에서 도입된 `record`에 대한 설명으로 옳은 것은?",
+        "choices": [
+          "record는 가변 객체로 설계되었다.",
+          "record는 데이터 운반용 DTO를 한 줄로 정의할 수 있게 해준다.",
+          "record는 다른 클래스를 상속할 수 있다.",
+          "record의 필드는 외부에서 직접 수정할 수 있다."
+        ],
+        "answer": 1,
+        "explanation": "`record`는 불변 데이터 운반 객체를 간결하게 표현하는 문법입니다. `record Point(int x, int y) { }` 한 줄로 컴팩트 생성자, getter, equals, hashCode, toString이 자동 생성됩니다. 상속 불가, 필드도 외부 수정 불가.",
+        "xp": 10
+      },
+      {
+        "id": "ob-18",
+        "type": "mcq",
+        "chapter": "oop-basics",
+        "prompt": "다음 중 **static nested class**에 대한 설명으로 옳은 것은?",
+        "choices": [
+          "외부 클래스의 인스턴스 필드에 직접 접근할 수 있다.",
+          "외부 클래스의 `static` 멤버만 직접 접근할 수 있다.",
+          "익명 클래스의 한 종류다.",
+          "람다 표현식의 다른写法다."
+        ],
+        "answer": 1,
+        "explanation": "`static nested class`는 외부 클래스의 인스턴스 멤버에 직접 접근할 수 없고, `static` 멤버만 접근 가능합니다. 인스턴스 멤버에 접근하려면 `inner`(non-static) 클래스여야 하고, 이때는 외부 인스턴스 참조가 필요합니다.",
+        "xp": 10
+      },
+      {
+        "id": "ob-19",
+        "type": "fill",
+        "chapter": "oop-basics",
+        "prompt": "다음 코드의 빈칸을 채워 캡슐화된 `Account` 클래스를 완성하시오.\n\n```java\npublic class Account {\n  _______ double balance;  // 외부에서 직접 수정 불가\n\n  public Account(double initial) {\n    if (initial < 0) throw new IllegalArgumentException();\n    this.balance = initial;\n  }\n\n  public _______ double getBalance() {  // 외부에서 읽기만 가능\n    return balance;\n  }\n}\n```",
+        "blanks": [
+          {
+            "placeholder": "지시어",
+            "answer": [
+              "private"
+            ],
+            "hint": "동일 클래스 내에서만 접근"
+          },
+          {
+            "placeholder": "지시어",
+            "answer": [
+              "public"
+            ],
+            "hint": "모든 곳에서 접근 가능"
+          }
+        ],
+        "explanation": "캡슐화의 기본은 필드를 `private`으로 숨기고 읽기 전용 접근을 `public` getter로만 제공하는 것입니다. 이렇게 하면 balance를 0 이상으로만 유지하는 같은 불변식을 한 곳에서 지킬 수 있습니다.",
+        "xp": 20
+      },
+      {
+        "id": "ob-20",
+        "type": "fill",
+        "chapter": "oop-basics",
+        "prompt": "다음 코드의 빈칸을 채워 의도대로 동작하는 생성자 체이닝을 완성하시오.\n\n```java\npublic class Email {\n  String local;\n  String domain;\n\n  public Email(String local, String domain) {\n    this.local = local;\n    this.domain = domain;\n  }\n\n  public Email(String full) {\n    this(full.____(\"@\")[0], full.____(\"@\")[1]);\n  }\n}\n```",
+        "blanks": [
+          {
+            "placeholder": "메서드",
+            "answer": [
+              "split"
+            ],
+            "hint": "문자열을 구분자로 잘라 배열로"
+          },
+          {
+            "placeholder": "메서드",
+            "answer": [
+              "split"
+            ],
+            "hint": "위와 동일 메서드"
+          }
+        ],
+        "explanation": "`String.split(\"@\")`는 이메일 주소를 `@` 기준으로 잘라 `[\"user\", \"example.com\"]` 같은 배열을 돌려줍니다. 단일 인자 생성자는 자기 자신의 this(...)로 두 인자 생성자를 호출해 중복 초기화 로직을 피합니다. this(...)는 반드시 생성자의 첫 줄에 와야 합니다.",
+        "xp": 20
+      }
+    ]
+  },
+  {
+    "id": "inheritance",
+    "title": "상속과 다형성",
+    "blurb": "extends, super, 오버라이드, 업/다운캐스팅, instanceof, abstract, 인터페이스, sealed, default 메서드 — 다형성의 모든 것.",
+    "track": "Java",
+    "order": 3,
+    "estMinutes": 80,
+    "questions": [
+      {
+        "id": "ip-01",
+        "type": "mcq",
+        "chapter": "inheritance",
+        "prompt": "다음 중 **자바의 클래스 상속**에 대한 설명으로 옳은 것은?",
+        "choices": [
+          "자바의 모든 클래스는 다중 상속이 가능하다.",
+          "자바의 클래스는 단일 상속만 허용하고, 인터페이스로 다중 구현을 보완한다.",
+          "상속을 받으면 부모의 `private` 멤버도 모두 접근할 수 있다.",
+          "`Object` 클래스는 상속할 수 없다."
+        ],
+        "answer": 1,
+        "explanation": "자바는 **단일 상속**만 허용합니다 (한 클래스만 `extends` 가능). 다중 상속의 모호성(다이아몬드 문제)을 피하기 위해서이고, 인터페이스의 다중 구현(`implements A, B`)으로 보완합니다. 부모의 `private` 멤버는 상속은 되지만 접근은 못 합니다.",
+        "xp": 10
+      },
+      {
+        "id": "ip-02",
+        "type": "mcq",
+        "chapter": "inheritance",
+        "prompt": "다음 코드의 출력은?\n\n```java\nclass Animal {\n    String name = \"Animal\";\n    Animal() { System.out.print(\"A\"); }\n}\n\nclass Dog extends Animal {\n    String name = \"Dog\";\n    Dog() { System.out.print(\"D\"); }\n}\n\nnew Dog();\n```",
+        "choices": [
+          "AD",
+          "DA",
+          "DD",
+          "AA"
+        ],
+        "answer": 0,
+        "explanation": "자식 생성자는 **첫 줄에서 부모 생성자를 먼저 호출**합니다. `Dog()`의 첫 줄이 묵시적 `super()`라서 `Animal()`이 먼저 실행되어 `A`가 찍히고, 이어서 `D`가 찍힙니다. 순서가 `DA`가 아니에요.",
+        "xp": 15
+      },
+      {
+        "id": "ip-03",
+        "type": "mcq",
+        "chapter": "inheritance",
+        "prompt": "다음 중 **메서드 오버라이드**가 성립하려면 반드시 만족해야 하는 조건으로 옳은 것은?",
+        "choices": [
+          "반환 타입은 부모와 정확히 같아야 한다.",
+          "접근 제어자는 부모와 같거나 더 넓어야 한다.",
+          "예외는 부모와 같거나 더 많은 checked 예외를 던져야 한다.",
+          "메서드 이름과 매개변수만 같으면 된다."
+        ],
+        "answer": 1,
+        "explanation": "오버라이드 규칙: ① 이름/매개변수 동일, ② 반환 타입은 같거나 **공변 반환 타입**(좁은 타입) 허용, ③ 접근 제어자는 **같거나 더 넓은** 범위(좁히면 안 됨), ④ 던지는 checked 예외는 같거나 더 구체적인 타입(더 많은 checked를 추가하면 안 됨). `Object` 반환을 `String`으로 좁혀 반환하는 게 공변 반환 타입의 예입니다.",
+        "xp": 15
+      },
+      {
+        "id": "ip-04",
+        "type": "mcq",
+        "chapter": "inheritance",
+        "prompt": "다음 코드의 출력은?\n\n```java\nclass A {\n    void hello() { System.out.print(\"A\"); }\n}\n\nclass B extends A {\n    @Override\n    void hello() { System.out.print(\"B\"); }\n}\n\nA x = new B();\nx.hello();\n```",
+        "choices": [
+          "A",
+          "B",
+          "컴파일 에러",
+          "런타임 에러"
+        ],
+        "answer": 1,
+        "explanation": "변수의 정적 타입은 `A`지만 실제 객체는 `B`입니다. 메서드 호출은 **런타임에 실제 객체 타입**을 따라가므로(B가 hello를 오버라이드했으므로) `B`가 출력됩니다. 이게 다형성의 핵심 — 정적 타입이 아니라 **동적 디스패치**입니다.",
+        "xp": 15
+      },
+      {
+        "id": "ip-05",
+        "type": "mcq",
+        "chapter": "inheritance",
+        "prompt": "다음 코드에서 컴파일 에러가 발생하는 줄은?\n\n```java\nclass Animal {}\nclass Dog extends Animal {}\n\nAnimal a = new Dog();\nDog d = a;            // 1\nDog d2 = (Dog) a;     // 2\nCat c = (Dog) a;      // 3  (Cat과 Dog는 Animal의 자식)\n```",
+        "choices": [
+          "1번",
+          "2번",
+          "3번",
+          "에러 없음"
+        ],
+        "answer": 0,
+        "explanation": "1번 `Dog d = a;`는 **다운캐스팅이 필요**해서 컴파일 에러입니다. 부모 → 자식 직접 대입은 안 되고 명시적 캐스팅이 필요합니다. 2번은 명시적 다운캐스팅이고 a의 실제 타입이 Dog라 런타임에도 OK. 3번은 `Cat`과 `Dog`가 형제 관계라 **상속 관계가 아닌 타입끼리의 캐스팅**이라 컴파일 에러입니다.",
+        "xp": 15
+      },
+      {
+        "id": "ip-06",
+        "type": "mcq",
+        "chapter": "inheritance",
+        "prompt": "`instanceof` 연산자에 대한 설명으로 **옳지 않은** 것은?",
+        "choices": [
+          "`a instanceof B`는 a가 B 타입(또는 그 자식)이면 true를 반환한다.",
+          "`null instanceof B`는 항상 false다.",
+          "Java 16부터는 `a instanceof B b`처럼 패턴 변수로 바로 사용할 수 있다.",
+          "`a instanceof B`는 컴파일 시점에 무조건 안전성을 검사하므로 캐스팅이 필요 없다."
+        ],
+        "answer": 3,
+        "explanation": "`instanceof`는 런타임 검사로, 컴파일 시점에는 **두 타입이 상속 관계에 있는지**만 확인합니다. 검사 결과가 true인 줄 알아도 명시적 캐스팅이 필요한 자바 15 이하 코드도 있고, 패턴 매칭(`a instanceof B b`)은 자바 16부터 도입되어 캐스팅 없이 변수를 바로 쓸 수 있게 해줍니다.",
+        "xp": 10
+      },
+      {
+        "id": "ip-07",
+        "type": "mcq",
+        "chapter": "inheritance",
+        "prompt": "다음 코드의 출력은?\n\n```java\nclass Parent {\n    int x = 10;\n    int getX() { return x; }\n}\n\nclass Child extends Parent {\n    int x = 20;\n    int getX() { return x; }\n}\n\nParent p = new Child();\nSystem.out.print(p.x + \" \" + p.getX());\n```",
+        "choices": [
+          "10 10",
+          "20 20",
+          "10 20",
+          "20 10"
+        ],
+        "answer": 2,
+        "explanation": "**필드는 정적 디스패치**(참조 타입 기준), **메서드는 동적 디스패치**(실제 객체 타입 기준)입니다. `p.x`는 정적 타입 `Parent`의 필드라 10, `p.getX()`는 실제 객체 `Child`의 메서드가 호출되어 20. 필드는 다형성이 적용되지 않으므로 오버라이드 대신 **숨김(hiding)** 이 일어났다고 합니다.",
+        "xp": 15
+      },
+      {
+        "id": "ip-08",
+        "type": "mcq",
+        "chapter": "inheritance",
+        "prompt": "`abstract` 메서드에 대한 설명으로 옳은 것은?",
+        "choices": [
+          "`abstract` 메서드도 본문 `{ ... }`을 가질 수 있다.",
+          "`abstract` 메서드가 있는 클래스는 반드시 `abstract`로 선언해야 한다.",
+          "`abstract` 메서드는 `static`과 함께 쓸 수 있다.",
+          "`abstract` 메서드는 `private`과 함께 쓸 수 있다."
+        ],
+        "answer": 1,
+        "explanation": "본문이 없는 추상 메서드를 가진 클래스는 미완성 설계도라서 인스턴스를 만들 수 없고, 반드시 `abstract`로 선언해야 합니다. `abstract`는 `static`(인스턴스 다형성과 모순)이나 `private`(자식이 오버라이드할 수 없음) 또는 `final`(오버라이드 금지)과 함께 쓸 수 없습니다.",
+        "xp": 10
+      },
+      {
+        "id": "ip-09",
+        "type": "mcq",
+        "chapter": "inheritance",
+        "prompt": "다음 중 **인터페이스**에 대한 설명으로 **옳지 않은** 것은?",
+        "choices": [
+          "Java 8부터 인터페이스에 `default` 메서드로 구현을 포함할 수 있다.",
+          "Java 8부터 인터페이스에 `static` 메서드를 가질 수 있다.",
+          "인터페이스의 필드는 자동으로 `public static final`이다.",
+          "인터페이스는 다른 인터페이스를 `implements`로 구현할 수 있다."
+        ],
+        "answer": 3,
+        "explanation": "인터페이스는 다른 인터페이스를 `implements`가 아닌 `extends`로 상속합니다. 클래스는 인터페이스를 `implements`로 구현. 1~3번은 모두 옳고, 4번만 틀린 표현입니다.",
+        "xp": 10
+      },
+      {
+        "id": "ip-10",
+        "type": "mcq",
+        "chapter": "inheritance",
+        "prompt": "다음 코드의 출력은?\n\n```java\ninterface I {\n    default void hello() { System.out.print(\"I\"); }\n}\n\nclass A implements I {}\n\nnew A().hello();\n```",
+        "choices": [
+          "컴파일 에러",
+          "I",
+          "런타임 에러",
+          "아무것도 출력 안 함"
+        ],
+        "answer": 1,
+        "explanation": "Java 8의 `default` 메서드는 인터페이스에 완전한 구현을 포함할 수 있게 해줍니다. `A`가 직접 오버라이드하지 않으면 상속받은 default 구현이 그대로 사용되어 `I`가 출력됩니다. 다중 구현 충돌은 **가장 구체적인 디폴트가 우선**되며 같은 우선순위면 명시적 오버라이드가 필요합니다.",
+        "xp": 10
+      },
+      {
+        "id": "ip-11",
+        "type": "mcq",
+        "chapter": "inheritance",
+        "prompt": "Java 17의 `sealed class`에 대한 설명으로 옳은 것은?",
+        "choices": [
+          "sealed 클래스는 상속 자체를 금지한다.",
+          "sealed 클래스는 `permits`로 지정한 클래스만 상속할 수 있다.",
+          "sealed 클래스는 인터페이스에 사용할 수 없다.",
+          "sealed 클래스는 `abstract`와 함께 사용할 수 없다."
+        ],
+        "answer": 1,
+        "explanation": "`sealed class Foo permits A, B, C`는 A, B, C만 Foo를 상속할 수 있게 제한합니다. 미허용 자식 클래스가 상속하려고 하면 컴파일 에러. 인터페이스에도 `sealed interface`로 같은 문법을 쓸 수 있고, `abstract`/`final`과도 자유롭게 조합할 수 있습니다.",
+        "xp": 10
+      },
+      {
+        "id": "ip-12",
+        "type": "mcq",
+        "chapter": "inheritance",
+        "prompt": "`final` 클래스에 대한 설명으로 **옳지 않은** 것은?",
+        "choices": [
+          "final 클래스는 상속할 수 없다.",
+          "`String`은 final 클래스다.",
+          "final 클래스는 다른 클래스를 상속할 수 없다.",
+          "final 클래스는 내부에서 다른 클래스를 nested로 정의할 수 있다."
+        ],
+        "answer": 2,
+        "explanation": "`final`은 **자신을 상속하지 못하게** 막는 것이지, **자신이 다른 클래스를 상속하는 것**과는 무관합니다. `final class MyString extends ...`도 가능합니다. `String`은 보안을 위해 final로 봉인돼 있어요.",
+        "xp": 10
+      },
+      {
+        "id": "ip-13",
+        "type": "mcq",
+        "chapter": "inheritance",
+        "prompt": "다음 코드의 출력은?\n\n```java\nclass Outer {\n    private int x = 1;\n    class Inner {\n        void print() { System.out.print(x); }\n    }\n}\n\nnew Outer().new Inner().print();\n```",
+        "choices": [
+          "1",
+          "컴파일 에러",
+          "0",
+          "런타임 에러"
+        ],
+        "answer": 0,
+        "explanation": "(non-static) inner class는 외부 인스턴스의 멤버에 직접 접근할 수 있습니다. `x`는 `private`이지만 같은 외부 클래스 멤버라 접근 가능하고, `1`이 출력됩니다. static nested class였다면 외부 인스턴스 참조가 없어 직접 접근할 수 없었을 거예요.",
+        "xp": 15
+      },
+      {
+        "id": "ip-14",
+        "type": "mcq",
+        "chapter": "inheritance",
+        "prompt": "다음 중 **메서드 숨김(method hiding)** 이 발생하는 상황은?",
+        "choices": [
+          "인스턴스 메서드를 자식 클래스에서 같은 시그니처로 다시 정의",
+          "`static` 메서드를 자식 클래스에서 같은 시그니처로 다시 정의",
+          "`final` 메서드를 자식 클래스에서 다시 정의",
+          "`private` 메서드를 자식 클래스에서 같은 이름으로 정의"
+        ],
+        "answer": 1,
+        "explanation": "static 메서드는 다형성으로 오버라이드되지 않고 **숨김(hiding)** 됩니다. 호출 시 참조 변수의 **컴파일 타임 타입**을 따라가서 `Parent.x()`와 `Child.x()`는 별개 메서드입니다. 인스턴스 메서드는 오버라이드(다형성), `private`/`final` 메서드는 숨김/오버라이드 불가입니다.",
+        "xp": 10
+      },
+      {
+        "id": "ip-15",
+        "type": "mcq",
+        "chapter": "inheritance",
+        "prompt": "다음 코드의 출력은?\n\n```java\nclass A {\n    A() { hello(); }\n    void hello() { System.out.print(\"A\"); }\n}\n\nclass B extends A {\n    String msg = \"B\";\n    @Override void hello() { System.out.print(msg); }\n}\n\nnew B();\n```",
+        "choices": [
+          "A",
+          "B",
+          "null",
+          "컴파일 에러"
+        ],
+        "answer": 2,
+        "explanation": "생성자에서 오버라이드된 메서드를 호출하면 **자식의 메서드가 실행**되지만, 그 시점에는 자식의 필드 초기화가 아직 완료되지 않았습니다. `msg`는 `null`이라 `null`이 출력됩니다. 이게 '생성자에서 오버라이드 가능한 메서드를 호출하지 말라'는 경고의 이유입니다.",
+        "xp": 15
+      },
+      {
+        "id": "ip-16",
+        "type": "mcq",
+        "chapter": "inheritance",
+        "prompt": "Java의 **공변 반환 타입(covariant return type)** 에 대한 설명으로 옳은 것은?",
+        "choices": [
+          "오버라이드할 때 반환 타입을 부모와 무관한 다른 타입으로 바꿀 수 있다.",
+          "오버라이드할 때 반환 타입을 부모 반환 타입의 **하위 타입**으로 좁힐 수 있다.",
+          "오버라이드할 때 반환 타입을 부모 반환 타입의 **상위 타입**으로 넓힐 수 있다.",
+          "공변 반환 타입은 인터페이스에서만 허용된다."
+        ],
+        "answer": 1,
+        "explanation": "Java 5부터 오버라이드 시 반환 타입을 부모의 하위 타입으로 좁히는 **공변 반환 타입**이 허용됩니다. 예: 부모 `Animal clone()`을 자식에서 `Dog clone()`으로 좁혀 반환 가능. 더 넓은 타입이나 무관한 타입으로의 변경은 컴파일 에러입니다.",
+        "xp": 10
+      },
+      {
+        "id": "ip-17",
+        "type": "mcq",
+        "chapter": "inheritance",
+        "prompt": "다음 코드의 출력은?\n\n```java\ninterface Fly { default void act() { System.out.print(\"F\"); } }\ninterface Swim { default void act() { System.out.print(\"S\"); } }\n\nclass Duck implements Fly, Swim {}\n\nnew Duck().act();\n```",
+        "choices": [
+          "F",
+          "S",
+          "컴파일 에러",
+          "FS"
+        ],
+        "answer": 2,
+        "explanation": "두 인터페이스에 같은 시그니처의 default 메서드가 있고 `Duck`이 오버라이드하지 않으면 **모호성** 때문에 컴파일 에러가 납니다. 해결책: ① `Duck`에서 `act()`를 명시적으로 오버라이드, ② `Fly.super.act();`처럼 어느 부모의 디폴트를 쓸지 명시.",
+        "xp": 15
+      },
+      {
+        "id": "ip-18",
+        "type": "mcq",
+        "chapter": "inheritance",
+        "prompt": "Java 21의 **패턴 매칭 for instanceof** 의 장점으로 가장 적절한 것은?",
+        "choices": [
+          "성능이 빨라진다.",
+          "캐스팅을 한 번 더 쓰지 않아도 변수를 바로 사용할 수 있다.",
+          "어떤 타입이든 instanceof 검사를 통과할 수 있다.",
+          "상속 관계가 없는 두 타입도 비교할 수 있다."
+        ],
+        "answer": 1,
+        "explanation": "Java 16부터 `if (obj instanceof String s) { s.length(); }`처럼 **패턴 변수**를 선언해 캐스팅 코드를 없앨 수 있습니다. 단순히 코드가 간결해지고, 컴파일러가 scope를 안전하게 관리해줍니다. (성능 변화는 별도 이슈, 비교 가능 타입은 여전히 상속 관계로 제한.)",
+        "xp": 10
+      },
+      {
+        "id": "ip-19",
+        "type": "fill",
+        "chapter": "inheritance",
+        "prompt": "다음 코드의 빈칸을 채워 의도대로 동작하는 `equals` 구현을 완성하시오.\n\n```java\nclass Point {\n  int x, y;\n\n  @Override\n  public boolean ____(Object o) {\n    if (!(o ____ Point)) return false;  // 타입 체크 (패턴 매칭)\n    Point p = (Point) o;\n    return x == p.x ____ y == p.y;       // 논리 연산\n  }\n}\n```",
+        "blanks": [
+          {
+            "placeholder": "메서드",
+            "answer": [
+              "equals"
+            ],
+            "hint": "Object의 동등성 비교 메서드"
+          },
+          {
+            "placeholder": "연산자",
+            "answer": [
+              "instanceof"
+            ],
+            "hint": "상속 관계 타입 검사"
+          },
+          {
+            "placeholder": "연산자",
+            "answer": [
+              "&&"
+            ],
+            "hint": "두 조건 모두 참일 때"
+          }
+        ],
+        "explanation": "`equals`는 `Object`의 시그니처 `public boolean equals(Object o)`를 오버라이드합니다. `instanceof`로 타입을 좁히고, 두 필드가 모두 같을 때만 true를 반환하도록 `&&`로 결합합니다. `==`만 쓰면 참조 비교라 필드 값이 같아도 false가 나올 수 있어요.",
+        "xp": 20
+      },
+      {
+        "id": "ip-20",
+        "type": "fill",
+        "chapter": "inheritance",
+        "prompt": "다음 코드의 빈칸을 채워 자식 클래스에서 부모의 동작을 **재사용하면서 확장**하는 메서드를 완성하시오.\n\n```java\nclass Vehicle {\n  void start() {\n    System.out.print(\"engine on \");\n  }\n}\n\nclass Car extends Vehicle {\n  @Override\n  void start() {\n    ____.start();          // 부모의 start() 먼저 호출\n    System.out.print(\"drive\");\n  }\n}\n\nnew Car().start();  // 출력: engine on drive\n```",
+        "blanks": [
+          {
+            "placeholder": "키워드",
+            "answer": [
+              "super"
+            ],
+            "hint": "부모 참조를 가리키는 키워드"
+          }
+        ],
+        "explanation": "`super`는 부모 클래스의 멤버를 가리키는 키워드입니다. `super.start()`로 부모의 `start()`를 먼저 호출한 뒤 자신의 추가 동작(`drive`)을 붙이면, 출력은 `engine on drive`가 됩니다. 생성자에서 `super(args)`로 부모 생성자를 명시 호출하는 것과 같은 원리예요.",
+        "xp": 20
+      }
+    ]
+  }
+]

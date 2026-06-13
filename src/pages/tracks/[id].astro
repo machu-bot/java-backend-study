@@ -1,10 +1,12 @@
 ---
 import Base from '../../layouts/Base.astro';
 import Quiz from '../../components/Quiz.astro';
-import { findChapter } from '../../lib/content';
+import { chapters, findChapter } from '../../lib/content';
+import extraChaptersData from '../../lib/extra-chapters.json';
 
 export function getStaticPaths() {
-  return ['java-basics', 'oop'].map((id) => ({ params: { id } }));
+  const all = [...chapters, ...(extraChaptersData as any[])];
+  return all.map((c) => ({ params: { id: c.id } }));
 }
 
 const { id } = Astro.params;

@@ -1,8 +1,10 @@
 ---
 import Base from '../../layouts/Base.astro';
 import { chapters, allQuestions } from '../../lib/content';
+import extraChaptersData from '../../lib/extra-chapters.json';
 import { chapterProgress, defaultState } from '../../lib/store';
 const qs = allQuestions();
+const allChapters = [...chapters, ...(extraChaptersData as any[])];
 const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
 ---
 
@@ -14,7 +16,7 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
 
   <div class="track-grid">
     {
-      chapters.map((c, i) => {
+      allChapters.map((c, i) => {
         const inC = qs.filter((q) => q.chapter === c.id);
         const prog = Math.round(
           chapterProgress(defaultState(), qs, c.id) * 100

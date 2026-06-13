@@ -1,4 +1,5 @@
 import type { Question } from './store';
+import extraChaptersData from './extra-chapters.json';
 
 /**
  * 시드 콘텐츠 — Java 입문 챕터.
@@ -498,7 +499,15 @@ export const chapters = [
   },
 ];
 
-export const allQuestions = (): Question[] =>
-  chapters.flatMap((c) => c.questions as unknown as Question[]);
+export const allQuestions = (): Question[] => {
+  const all = [
+    ...chapters.flatMap((c) => c.questions as unknown as Question[]),
+    ...(extraChaptersData as any[]).flatMap((c) => c.questions as unknown as Question[]),
+  ];
+  return all;
+};
 
-export const findChapter = (id: string) => chapters.find((c) => c.id === id);
+export const findChapter = (id: string) => {
+  const all = [...chapters, ...(extraChaptersData as any[])];
+  return all.find((c) => c.id === id);
+};
