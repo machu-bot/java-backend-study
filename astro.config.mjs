@@ -5,7 +5,4 @@ import { defineConfig } from 'astro/config';
 export default defineConfig({
   site: 'https://machu-bot.github.io',
   base: '/java-backend-study',
-  vite: {
-    ssr: { noExternal: ['@fontsource-variable/geist'] },
-  },
 });

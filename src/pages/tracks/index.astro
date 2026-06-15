@@ -21,16 +21,21 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
         const prog = Math.round(
           chapterProgress(defaultState(), qs, c.id) * 100
         );
+        const segCount = 16;
+        const filled = Math.round((prog / 100) * segCount);
         return (
           <a class="track-card" href={`${base}tracks/${c.id}/`}>
-            <span class="track-num">0{i + 1}</span>
+            <span class="track-num">0{i + 1} / {String(allChapters.length).padStart(2, '0')}</span>
             <h3>{c.title}</h3>
             <p>{c.blurb}</p>
-            <div class="tiny" style="margin-top: 14px;">
-              {inC.length}문제 · 약 {c.estMinutes}분
+            <div class="meta">
+              <span class="tiny">{inC.length} Q · {c.estMinutes} MIN</span>
+              <span class="tiny">{prog}%</span>
             </div>
-            <div class="progress" style="margin-top: 8px;">
-              <span style={`width:${prog}%`} />
+            <div class="segmented progress-wrap" role="img" aria-label={`진행도 ${prog}%`}>
+              {Array.from({ length: segCount }).map((_, k) => (
+                <span class={`seg${k < filled ? ' on' : ''}`} data-state="neutral" />
+              ))}
             </div>
           </a>
         );

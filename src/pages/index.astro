@@ -13,7 +13,8 @@ const today = new Date().toISOString().slice(0, 10);
 <Base title="홈" active="home">
   <section class="hero">
     <span class="pill"><span class="dot"></span> {today} · 매일 한 문제</span>
-    <h1>백엔드, <span class="grad">매일 조금씩</span><br />풀면서 익힙니다.</h1>
+    <div class="dot-grid-subtle" style="height: 1px; margin: 8px 0 0;" aria-hidden="true"></div>
+    <h1>백엔드,<br /><span class="grad">매일 조금씩</span><br />풀면서 익힙니다.</h1>
     <p class="lead">
       읽고 외우는 대신 직접 풀어봅니다. {total}개의 인터랙티브 문제로
       Java·객체지향·Spring Boot의 기반을 다지고, 오늘도 streak를 이어가세요.
@@ -25,16 +26,16 @@ const today = new Date().toISOString().slice(0, 10);
 
     <div class="stat-grid">
       <div class="stat">
-        <div class="label">현재 Streak</div>
-        <div class="value" data-bind="streak">{initial.streak.current}일</div>
+        <div class="label">Streak</div>
+        <div class="value" data-bind="streak">{initial.streak.current}<span class="unit">일</span></div>
       </div>
       <div class="stat">
-        <div class="label">누적 XP</div>
+        <div class="label">XP</div>
         <div class="value" data-bind="xp">0</div>
       </div>
       <div class="stat">
         <div class="label">푼 문제</div>
-        <div class="value" data-bind="solved">0 / {total}</div>
+        <div class="value" data-bind="solved">0<span class="unit">/ {total}</span></div>
       </div>
       <div class="stat">
         <div class="label">배지</div>
@@ -54,13 +55,21 @@ const today = new Date().toISOString().slice(0, 10);
           const prog = Math.round(
             chapterProgress(defaultState(), questions, c.id) * 100
           );
+          const segCount = 16;
+          const filled = Math.round((prog / 100) * segCount);
           return (
             <a class="track-card" href={`${base}tracks/${c.id}/`}>
-              <span class="track-num">0{i + 1}</span>
+              <span class="track-num">0{i + 1} / {String(chapters.length).padStart(2, '0')}</span>
               <h3>{c.title}</h3>
               <p>{c.blurb}</p>
-              <div class="progress">
-                <span style={`width:${prog}%`} />
+              <div class="meta">
+                <span class="tiny">{c.estMinutes} MIN</span>
+                <span class="tiny">{prog}%</span>
+              </div>
+              <div class="segmented progress-wrap" role="img" aria-label={`진행도 ${prog}%`}>
+                {Array.from({ length: segCount }).map((_, k) => (
+                  <span class={`seg${k < filled ? ' on' : ''}`} data-state="neutral" />
+                ))}
               </div>
             </a>
           );
@@ -99,12 +108,12 @@ const today = new Date().toISOString().slice(0, 10);
   const state = load();
   const total = {total};
   const solved = Object.values(state.answered).filter((a) => a.correct).length;
-  const set = (k: string, v: string) => {
+  const render = (k: string, html: string) => {
     const el = document.querySelector(`[data-bind="${k}"]`);
-    if (el) el.textContent = v;
+    if (el) el.innerHTML = html;
   };
-  set('streak', `${state.streak.current}일`);
-  set('xp', String(state.xp));
-  set('solved', `${solved} / ${total}`);
-  set('badges', String(state.badges.length));
+  render('streak', `${state.streak.current}<span class="unit">일</span>`);
+  render('xp', String(state.xp));
+  render('solved', `${solved}<span class="unit">/ ${total}</span>`);
+  render('badges', String(state.badges.length));
 </script>
