@@ -1687,5 +1687,315 @@
         "xp": 20
       }
     ]
+  },
+  {
+    "id": "spring-boot",
+    "title": "Spring Boot 기초",
+    "blurb": "IoC 컨테이너, Bean, @Component/@Service/@Repository, @Autowired, @Controller, @RestController, application.yml — Spring Boot의 핵심 구조와 의존성 주입을 익힙니다.",
+    "track": "Spring",
+    "order": 8,
+    "estMinutes": 90,
+    "questions": [
+      {
+        "id": "sb-01",
+        "type": "mcq",
+        "chapter": "spring-boot",
+        "prompt": "Spring 프레임워크에서 **IoC(Inversion of Control)** 컨테이너가 하는 역할로 가장 정확한 것은?",
+        "choices": [
+          "개발자가 직접 `new` 키워드로 객체를 생성해 컨테이너에 등록한다.",
+          "객체의 생성과 의존 관계 설정을 컨테이너가 담당하고, 개발자는 그 결과를 사용한다.",
+          "객체를 싱글톤으로 강제 변환해서 메모리 사용량을 줄인다.",
+          "컴파일 타임에 모든 빈을 검증해서 런타임 에러를 제거한다."
+        ],
+        "answer": 1,
+        "explanation": "IoC는 '제어의 역전'입니다. 평소에는 개발자가 `new`로 객체를 만들고 의존을 연결하지만, Spring에서는 컨테이너가 그 일을 대신합니다. 개발자는 `@Component` 같은 어노테이션만 붙이면 컨테이너가 객체를 만들고, 필요한 곳에 주입해줍니다. 이 덕분에 결합도가 낮아지고 테스트하기 쉬워집니다.",
+        "xp": 15
+      },
+      {
+        "id": "sb-02",
+        "type": "mcq",
+        "chapter": "spring-boot",
+        "prompt": "Spring에서 **Bean**이란 무엇인가?",
+        "choices": [
+          "`@Bean` 어노테이션이 붙은 메서드의 반환값으로 등록된, IoC 컨테이너가 관리하는 객체.",
+          "JSON 직렬화 가능한 Java 객체.",
+          "데이터베이스 테이블과 매핑된 엔티티 클래스.",
+          "HTTP 요청마다 새로 만들어지는 서블릿."
+        ],
+        "answer": 0,
+        "explanation": "Bean은 Spring IoC 컨테이너가 생성·관리하는 객체를 부르는 이름입니다. 등록 방법은 크게 두 가지: (1) `@Component`, `@Service`, `@Repository`, `@Controller` 같은 스테레오타입 어노테이션을 클래스에 붙이거나, (2) `@Configuration` 클래스 안에서 `@Bean` 메서드로 직접 정의. 컨테이너는 이 빈들을 싱글톤 스코프(기본)로 보관하고, 의존성이 필요할 때 주입해줍니다.",
+        "xp": 15
+      },
+      {
+        "id": "sb-03",
+        "type": "mcq",
+        "chapter": "spring-boot",
+        "prompt": "다음 중 **컴포넌트 스캔**의 대상이 되는 어노테이션이 **아닌** 것은?",
+        "choices": [
+          "`@Component`",
+          "`@Service`",
+          "`@Autowired`",
+          "`@Repository`"
+        ],
+        "answer": 2,
+        "explanation": "`@Component`가 일반적인 컴포넌트 마커이고, `@Service`·`@Repository`·`@Controller`는 모두 내부적으로 `@Component`를 메타 어노테이션으로 포함하고 있어서 컴포넌트 스캔 대상입니다. `@Autowired`는 의존성 주입을 *요청*하는 마커이지, 빈을 *등록*하는 마커는 아닙니다.",
+        "xp": 10
+      },
+      {
+        "id": "sb-04",
+        "type": "mcq",
+        "chapter": "spring-boot",
+        "prompt": "`@Service`와 `@Component`의 기능적 차이로 가장 정확한 것은?",
+        "choices": [
+          "`@Service`는 트랜잭션을 자동으로 시작하고, `@Component`는 시작하지 않는다.",
+          "`@Service`는 싱글톤이 아니고, `@Component`는 싱글톤이다.",
+          "기능은 동일하지만, 서비스 레이어(비즈니스 로직)라는 **의도**를 표현하기 위한 마커다.",
+          "`@Service`는 웹 요청만 처리하고, `@Component`는 백그라운드 작업만 처리한다."
+        ],
+        "answer": 2,
+        "explanation": "둘 다 컴포넌트 스캔 대상이고 동작은 같습니다. 차이는 **의도를 드러내는 것**입니다. `@Service`는 '이 클래스는 비즈니스 로직을 담는 서비스 레이어'라는 것을, `@Repository`는 '데이터 액세스 레이어'를, `@Controller`는 '웹 컨트롤러'를 의미합니다. AOP나 트랜잭션이 자동으로 걸리지는 않습니다(트랜잭션은 `@Transactional`이 따로 필요).",
+        "xp": 10
+      },
+      {
+        "id": "sb-05",
+        "type": "mcq",
+        "chapter": "spring-boot",
+        "prompt": "Spring Boot 애플리케이션 진입점에서 `@SpringBootApplication`이 하는 일로 올바른 것은?",
+        "choices": [
+          "내장 톰캣 서버를 자동으로 시작한다.",
+          "`@Configuration`, `@EnableAutoConfiguration`, `@ComponentScan` 세 가지를 한꺼번에 활성화한다.",
+          "데이터베이스 커넥션 풀을 미리 생성한다.",
+          "모든 컨트롤러의 URL을 미리 매핑해둔다."
+        ],
+        "answer": 1,
+        "explanation": "`@SpringBootApplication`은 위 세 어노테이션의 합성입니다. `@Configuration`은 이 클래스가 설정 클래스임을, `@EnableAutoConfiguration`은 클래스패스를 보고 필요한 자동 설정을(예: `spring-boot-starter-web`이 있으면 톰캣 임베드) 적용하라는 의미, `@ComponentScan`은 현재 패키지부터 하위 패키지를 스캔하라는 의미입니다. 내장 톰캣 시작은 auto-configuration이 처리합니다.",
+        "xp": 15
+      },
+      {
+        "id": "sb-06",
+        "type": "mcq",
+        "chapter": "spring-boot",
+        "prompt": "다음 코드의 실행 결과로 가장 적절한 것은?\n\n```java\n@RestController\npublic class HelloController {\n    @GetMapping(\"/hello\")\n    public String hello() {\n        return \"Hello\";\n    }\n}\n```",
+        "choices": [
+          "`GET /hello`로 요청하면 HTTP 응답 본문에 `\"Hello\"` 문자열이 그대로 담긴다.",
+          "`GET /hello`로 요청하면 `\"Hello\"`라는 이름의 뷰(템플릿)를 렌더링한다.",
+          "`GET /hello`로 요청하면 컴파일 에러가 발생한다.",
+          "`GET /hello`로 요청하면 HTTP 404가 반환된다."
+        ],
+        "answer": 0,
+        "explanation": "`@RestController`는 `@Controller` + `@ResponseBody`의 합성입니다. 메서드가 반환하는 값을 뷰 이름이 아니라 HTTP 응답 본문으로 직렬화합니다. `String`을 반환하면 기본 메시지 컨버터가 `text/plain`으로 그대로 내려보냅니다. 뷰를 렌더링하려면 `@Controller`만 쓰고 `ModelAndView`나 문자열(뷰 이름)을 반환해야 합니다.",
+        "xp": 15
+      },
+      {
+        "id": "sb-07",
+        "type": "mcq",
+        "chapter": "spring-boot",
+        "prompt": "`@Controller`와 `@RestController`의 차이로 가장 정확한 것은?",
+        "choices": [
+          "`@RestController`는 GET 요청만 처리하고, `@Controller`는 모든 HTTP 메서드를 처리한다.",
+          "`@RestController`는 메서드 반환값을 HTTP 응답 본문으로 직렬화하고, `@Controller`는 뷰 이름을 반환해 템플릿을 렌더링한다.",
+          "`@RestController`는 JSON만, `@Controller`는 XML만 응답한다.",
+          "둘은 동일하고 별칭일 뿐이다."
+        ],
+        "answer": 1,
+        "explanation": "`@RestController`는 모든 메서드에 `@ResponseBody`가 자동 적용됩니다. 그래서 반환값이 `String`, `User`, `List<User>` 등이면 Jackson 등의 컨버터가 JSON/text로 직렬화되어 응답 본문에 들어갑니다. `@Controller`는 별도로 `@ResponseBody`를 메서드에 붙이지 않는 한, 반환값을 뷰 이름으로 해석해 `ViewResolver`로 템플릿을 찾습니다.",
+        "xp": 10
+      },
+      {
+        "id": "sb-08",
+        "type": "mcq",
+        "chapter": "spring-boot",
+        "prompt": "다음 코드의 **문제점**으로 가장 적절한 것은?\n\n```java\n@Service\npublic class OrderService {\n    @Autowired\n    private OrderRepository orderRepository;\n\n    public Order findById(Long id) {\n        return orderRepository.findById(id).orElseThrow();\n    }\n}\n```",
+        "choices": [
+          "`@Autowired`는 생성자가 없으면 동작하지 않으므로 컴파일 에러가 발생한다.",
+          "필드 주입은 테스트하기 어렵고, `final`을 붙일 수 없어 불변성이 깨진다. 생성자 주입이 권장된다.",
+          "`@Service`가 아니라 `@Component`를 써야 한다.",
+          "`OrderRepository`는 인터페이스여서 주입할 수 없다."
+        ],
+        "answer": 1,
+        "explanation": "필드 주입(`@Autowired`를 필드에 직접 붙이기)은 가장 간단하지만 여러 문제가 있습니다: (1) `final`을 못 붙여 불변성이 깨지고, (2) 단위 테스트에서 목(mock)을 주입하려면 리플렉션이 필요하고, (3) 순환 의존을 늦게 발견합니다. 그래서 Spring 공식 문서도 **생성자 주입**을 권장합니다 — 생성자가 하나면 `@Autowired`도 생략 가능합니다.",
+        "xp": 15
+      },
+      {
+        "id": "sb-09",
+        "type": "mcq",
+        "chapter": "spring-boot",
+        "prompt": "위 문제를 **생성자 주입**으로 올바르게 고친 코드는?",
+        "choices": [
+          "```java\n@Service\npublic class OrderService {\n    private OrderRepository orderRepository;\n\n    public OrderService(OrderRepository orderRepository) {\n        this.orderRepository = orderRepository;\n    }\n}\n```",
+          "```java\n@Service\npublic class OrderService {\n    @Autowired\n    public OrderService(OrderRepository orderRepository) { }\n}\n```",
+          "```java\n@Service\npublic class OrderService implements OrderRepository { }\n```",
+          "```java\n@Service\npublic class OrderService extends OrderRepository { }\n```"
+        ],
+        "answer": 0,
+        "explanation": "생성자 주입은 (1) 의존성을 `final`로 불변하게 보관할 수 있고, (2) 테스트 시 `new OrderService(mockRepo)`로 명시적 주입이 가능하고, (3) 순환 의존을 컴파일/시작 시점에 발견할 수 있다는 장점이 있습니다. 생성자가 하나뿐이면 `@Autowired`를 생략해도 Spring이 자동으로 주입합니다.",
+        "xp": 10
+      },
+      {
+        "id": "sb-10",
+        "type": "mcq",
+        "chapter": "spring-boot",
+        "prompt": "`@Autowired`로 같은 타입의 빈이 **두 개** 이상 발견되면 어떻게 되나?",
+        "choices": [
+          "컴파일 에러가 발생한다.",
+          "가장 먼저 발견된 빈이 무조건 사용된다.",
+          "애플리케이션 시작 시 `NoUniqueBeanDefinitionException`이 발생한다.",
+          "런타임에 무작위로 하나가 선택된다."
+        ],
+        "answer": 2,
+        "explanation": "타입이 같은 빈이 여러 개면 Spring이 어떤 걸 주입할지 모릅니다. 이때 `NoUniqueBeanDefinitionException`이 발생하며, 일반적으로 **이름 기반 fallback**(`변수명 = 빈 id`)으로 해결합니다. 가장 깔끔한 해법은 구현체에 `@Primary`를 붙이거나, 주입 지점에서 `@Qualifier(\"빈이름\")`로 명시하는 것입니다.",
+        "xp": 15
+      },
+      {
+        "id": "sb-11",
+        "type": "mcq",
+        "chapter": "spring-boot",
+        "prompt": "`application.yml`에서 포트 번호를 8081로 바꾸는 올바른 설정은?",
+        "choices": [
+          "```yaml\nserver:\n  port: 8081\n```",
+          "```yaml\nspring:\n  server.port=8081\n```",
+          "```yaml\napp.port = 8081\n```",
+          "```yaml\nserver.port: \"8081\"\n```"
+        ],
+        "answer": 0,
+        "explanation": "Spring Boot의 표준 키는 `server.port`이고 YAML 들여쓰기로 계층을 표현합니다. `application.properties`에서는 `server.port=8081`이지만, YAML에서는 콜론과 들여쓰기(`server:` 아래 `  port: 8081`)를 사용합니다. 들여쓰기가 잘못되면 그냥 무시되거나 빈이 잘못 바인딩되어 기본값 8080이 그대로 적용됩니다.",
+        "xp": 10
+      },
+      {
+        "id": "sb-12",
+        "type": "mcq",
+        "chapter": "spring-boot",
+        "prompt": "`@RequestMapping(\"/api\")`이 붙은 컨트롤러 안에서, HTTP 메서드별로 매핑하는 어노테이션이 **아닌** 것은?",
+        "choices": [
+          "`@GetMapping`",
+          "`@PostMapping`",
+          "`@Transactional`",
+          "`@DeleteMapping`"
+        ],
+        "answer": 2,
+        "explanation": "`@GetMapping`, `@PostMapping`, `@PutMapping`, `@DeleteMapping`, `@PatchMapping`은 모두 `@RequestMapping(method = ...)`의 축약형입니다. `@Transactional`은 HTTP 매핑과 무관한 **트랜잭션 경계**를 지정하는 어노테이션으로, 서비스 레이어에서 주로 사용합니다.",
+        "xp": 10
+      },
+      {
+        "id": "sb-13",
+        "type": "mcq",
+        "chapter": "spring-boot",
+        "prompt": "다음 컨트롤러에서 `GET /users/42` 요청 시 `id` 파라미터에 들어가는 값은?\n\n```java\n@GetMapping(\"/users/{id}\")\npublic User getUser(@PathVariable Long id) { ... }\n```",
+        "choices": [
+          "`\"42\"` (문자열)",
+          "`42` (Long으로 자동 변환)",
+          "`null`",
+          "`NumberFormatException` 발생"
+        ],
+        "answer": 1,
+        "explanation": "`@PathVariable`은 URL 경로의 변수를 메서드 파라미터로 바인딩합니다. 파라미터 타입이 `Long`이라 Spring이 내장 변환기(`StringToLongConverter`)로 `\"42\"`를 `42L`로 자동 변환합니다. 만약 `\"abc\"`처럼 숫자가 아닌 값이 들어오면 `MethodArgumentTypeMismatchException`이 발생합니다(기본적으로 400 Bad Request로 처리).",
+        "xp": 10
+      },
+      {
+        "id": "sb-14",
+        "type": "mcq",
+        "chapter": "spring-boot",
+        "prompt": "다음 컨트롤러에서 `GET /search?q=spring` 요청을 처리하는 시그니처는?\n\n```java\npublic class SearchController { ... }\n```",
+        "choices": [
+          "```java\n@GetMapping(\"/search\")\npublic List<String> search(@RequestParam String q) { ... }\n```",
+          "```java\n@GetMapping(\"/search\")\npublic List<String> search(@PathVariable String q) { ... }\n```",
+          "```java\n@GetMapping(\"/search\")\npublic List<String> search(@RequestBody String q) { ... }\n```",
+          "```java\n@GetMapping(\"/search\")\npublic List<String> search(HttpServletRequest req) {\n    String q = req.getParameter(\"q\");\n    ...\n}\n```"
+        ],
+        "answer": 0,
+        "explanation": "쿼리 스트링(`?q=spring`)은 `@RequestParam`으로 받습니다. `@PathVariable`은 URL 경로(`/users/{id}`)용이고, `@RequestBody`는 POST/PUT의 JSON/XML 본문용입니다. 마지막 보기처럼 `HttpServletRequest`에서 직접 꺼내는 것도 가능하지만, Spring MVC에서는 어노테이션 기반 바인딩이 훨씬 간결하고 테스트하기 쉽습니다.",
+        "xp": 10
+      },
+      {
+        "id": "sb-15",
+        "type": "mcq",
+        "chapter": "spring-boot",
+        "prompt": "Spring에서 **싱글톤 빈**(default scope)의 특징으로 올바른 것은?",
+        "choices": [
+          "HTTP 요청마다 새 인스턴스가 만들어진다.",
+          "IoC 컨테이너당 **하나**의 인스턴스만 만들어져 공유된다.",
+          "스레드마다 별도의 인스턴스가 생긴다.",
+          "GC 대상이 되어서 절대 회수되지 않는다."
+        ],
+        "answer": 1,
+        "explanation": "Spring Bean의 기본 스코프는 `singleton`입니다. 컨테이너가 시작될 때 한 번만 생성되고, 그 이후 모든 주입 지점에서 같은 인스턴스를 공유합니다. 그래서 **상태를 가지면 안 됩니다**(필드에 가변 데이터를 두면 동시성 문제). HTTP 요청마다 새 인스턴스가 필요한 경우 `@Scope(\"request\")` 또는 `@RequestScope`를 씁니다.",
+        "xp": 15
+      },
+      {
+        "id": "sb-16",
+        "type": "mcq",
+        "chapter": "spring-boot",
+        "prompt": "다음 중 Spring Boot **스타터(starter)**가 아닌 것은?",
+        "choices": [
+          "`spring-boot-starter-web`",
+          "`spring-boot-starter-data-jpa`",
+          "`spring-boot-starter-security`",
+          "`spring-boot-starter-runtime-magic`"
+        ],
+        "answer": 3,
+        "explanation": "Spring Boot starter는 의존성 묶음입니다. 이름은 항상 `spring-boot-starter-*` 패턴이고, 실제로는 spring-web, jackson, hibernate, tomcat 같은 라이브러리들을 모아서 한 줄로 추가할 수 있게 해줍니다. `spring-boot-starter-runtime-magic`은 존재하지 않습니다. 자주 쓰는 것들: `web`, `data-jpa`, `security`, `test`, `actuator`, `thymeleaf`, `validation`.",
+        "xp": 10
+      },
+      {
+        "id": "sb-17",
+        "type": "mcq",
+        "chapter": "spring-boot",
+        "prompt": "Spring에서 **AOP(Aspect-Oriented Programming)**의 대표적 사용 사례가 **아닌** 것은?",
+        "choices": [
+          "로깅 — 모든 서비스 메서드 호출 시 진입/종료 로그 남기기",
+          "트랜잭션 관리 — `@Transactional` 메서드 전후로 트랜잭션 시작/커밋",
+          "보안 검사 — 컨트롤러 호출 전 권한 확인",
+          "HTTP 요청 본문 파싱 — JSON을 객체로 변환"
+        ],
+        "answer": 3,
+        "explanation": "AOP는 '횡단 관심사(cross-cutting concern)'를 모듈화하는 기법입니다. 로깅, 트랜잭션, 보안, 캐싱 같은 **여러 코드에 흩어져 있는 공통 로직**을 별도 aspect로 빼서 선언적으로 적용합니다. JSON 파싱은 메시지 컨버터(`MappingJackson2HttpMessageConverter`)가 처리하는 HTTP 요청 변환의 일부지, AOP와는 관계가 없습니다.",
+        "xp": 15
+      },
+      {
+        "id": "sb-18",
+        "type": "mcq",
+        "chapter": "spring-boot",
+        "prompt": "`@Transactional`이 붙은 메서드를 **같은 클래스 내부의 다른 메서드**에서 `this.method()`로 호출하면 트랜잭션이 어떻게 적용되는가?",
+        "choices": [
+          "정상적으로 트랜잭션이 시작된다.",
+          "트랜잭션이 적용되지 않는다 (프록시를 거치지 않기 때문).",
+          "트랜잭션이 두 번 시작된다.",
+          "컴파일 에러가 발생한다."
+        ],
+        "answer": 1,
+        "explanation": "Spring의 트랜잭션은 **프록시 기반**입니다. 컨테이너가 빈을 감싸는 프록시 객체를 만들고, 외부에서 메서드 호출이 들어오면 프록시가 트랜잭션을 시작한 뒤 실제 빈의 메서드를 호출합니다. 그런데 같은 클래스 내부에서 `this.method()`를 부르면 **프록시를 우회**하고 직접 메서드를 호출하기 때문에 `@Transactional`이 무시됩니다. 해결책: (1) 다른 빈으로 분리하거나, (2) `AopContext.currentProxy()`를 쓰거나, (3) 자기 주입(self-injection) 패턴 사용.",
+        "xp": 20
+      },
+      {
+        "id": "sb-19",
+        "type": "mcq",
+        "chapter": "spring-boot",
+        "prompt": "Spring Boot Actuator의 주된 용도는?",
+        "choices": [
+          "데이터베이스 마이그레이션을 자동으로 실행한다.",
+          "애플리케이션의 헬스 체크, 메트릭, 환경 정보 등을 HTTP 엔드포인트로 노출한다.",
+          "Spring Security 로그인 페이지를 자동 생성한다.",
+          "JSON 직렬화/역직렬화 성능을 최적화한다."
+        ],
+        "answer": 1,
+        "explanation": "`spring-boot-starter-actuator`를 추가하면 `/actuator/health`, `/actuator/metrics`, `/actuator/env`, `/actuator/info` 같은 운영용 엔드포인트가 자동으로 노출됩니다. 쿠버네티스의 liveness/readiness probe나 모니터링 시스템(Prometheus 등)과의 통합에 필수적입니다. 운영 환경에서는 보안을 위해 노출 엔드포인트를 `management.endpoints.web.exposure.include`로 화이트리스트하는 것이 일반적입니다.",
+        "xp": 10
+      },
+      {
+        "id": "sb-20",
+        "type": "mcq",
+        "chapter": "spring-boot",
+        "prompt": "Spring Boot에서 `@ConfigurationProperties(\"app\")`를 사용하는 이유로 가장 정확한 것은?",
+        "choices": [
+          "런타임에 설정을 동적으로 바꿀 수 있게 해준다.",
+          "`application.yml`의 `app.*` 키들을 타입 안전한 POJO로 바인딩해서 주입받게 해준다.",
+          "환경 변수보다 우선순위가 낮은 설정을 정의한다.",
+          "데이터베이스 설정을 자동으로 마이그레이션한다."
+        ],
+        "answer": 1,
+        "explanation": "`@ConfigurationProperties`는 외부 설정(yaml/properties/env)을 클래스 필드에 바인딩합니다. `@Value(\"${app.name}\")`로 하나씩 꺼내는 대신, `app.name`, `app.timeout`, `app.max-size` 같은 키를 묶어서 `AppProperties` 클래스로 한 번에 주입받을 수 있습니다. `@ConfigurationPropertiesScan`을 메인 클래스에 붙여두면 스캔도 자동이고, IDE의 자동완성/검증도 지원됩니다.",
+        "xp": 20
+      }
+    ]
   }
 ]
