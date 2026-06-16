@@ -1997,5 +1997,935 @@
         "xp": 20
       }
     ]
+  },
+  {
+    "id": "spring-core-basic",
+    "title": "스프링 핵심원리 - 기본편",
+    "blurb": "SOLID 원칙, IoC/DI 컨테이너, Bean 등록/조회/스코프, 빈 생명주기 콜백, @Autowired 동작 원리, 생성자/수정자/필드 주입 비교 — 스프링의 본질을 이해합니다.",
+    "track": "Spring",
+    "order": 9,
+    "estMinutes": 100,
+    "questions": [
+      {
+        "id": "scb-01",
+        "type": "mcq",
+        "chapter": "spring-core-basic",
+        "prompt": "**SOLID** 원칙 중 **DIP(Dependency Inversion Principle, 의존관계 역전 원칙)**의 핵심 정의로 가장 정확한 것은?",
+        "choices": [
+          "하위 모듈이 상위 모듈을 호출하도록 의존 방향을 바꾼다.",
+          "구체화가 아닌 **추상화(인터페이스)**에 의존하고, 구체 클래스에는 직접 의존하지 않는다.",
+          "모든 의존은 생성자 파라미터로만 주입되어야 한다.",
+          "DI 컨테이너가 반드시 모든 객체를 관리해야 한다."
+        ],
+        "answer": 1,
+        "explanation": "DIP는 '구체 클래스'가 아니라 '추상화(인터페이스/추상 클래스)'에 의존하라는 원칙입니다. `OrderService`가 `OrderRepository` 인터페이스에만 의존하고, 구현체인 `JPAOrderRepository`에는 직접 의존하지 않는 것이 핵심입니다. 구현체는 외부(설정 클래스/DI 컨테이너)에서 주입해 결합도를 낮춥니다. (1)은 일반적인 호출 방향 정의로 DIP 자체가 아닙니다.",
+        "xp": 15
+      },
+      {
+        "id": "scb-02",
+        "type": "mcq",
+        "chapter": "spring-core-basic",
+        "prompt": "Spring에서 말하는 **IoC(Inversion of Control)**의 의미로 가장 적절한 것은?",
+        "choices": [
+          "제어 흐름이 main에서 라이브러리 코드로 넘어가는 것.",
+          "프레임워크가 객체의 **생성, 의존관계 설정, 생명주기 관리**를 대신하고, 개발자는 그 결과를 사용하기만 한다.",
+          "스레드 우선순위를 OS 대신 JVM이 정하는 것.",
+          "예외가 발생하면 호출자의 catch 블록으로 제어를 넘기는 것."
+        ],
+        "answer": 1,
+        "explanation": "IoC는 '제어의 역전'입니다. 평소에는 개발자가 `new`로 객체를 만들고 의존을 연결하지만, Spring에서는 컨테이너(ApplicationContext)가 객체 생성·의존성 주입·초기화/소멸 콜백까지 담당합니다. (1)은 'Hollywood Principle'로 비슷한 결의 다른 맥락입니다.",
+        "xp": 10
+      },
+      {
+        "id": "scb-03",
+        "type": "mcq",
+        "chapter": "spring-core-basic",
+        "prompt": "다음 중 **DI(Dependency Injection)** 방식이 **아닌** 것은?",
+        "choices": [
+          "생성자 주입 (Constructor Injection)",
+          "수정자 주입 (Setter Injection)",
+          "필드 주입 (Field Injection)",
+          "옵저버 주입 (Observer Injection)"
+        ],
+        "answer": 3,
+        "explanation": "Spring이 표준으로 지원하는 DI 방식은 생성자/수정자/필드 3가지입니다. '옵저버 주입'이라는 용어는 존재하지 않습니다. 옵저버 패턴은 이벤트 발행/구독 메커니즘(예: `ApplicationEventPublisher`)으로, DI와는 다른 범주의 패턴입니다.",
+        "xp": 10
+      },
+      {
+        "id": "scb-04",
+        "type": "mcq",
+        "chapter": "spring-core-basic",
+        "prompt": "Spring 공식 문서가 권장하는 DI 방식으로 가장 적절한 것은?",
+        "choices": [
+          "필드 주입 — 코드가 가장 간결하므로 권장된다.",
+          "수정자 주입 — 런타임에 의존성을 바꿀 수 있어 가장 유연하다.",
+          "**생성자 주입** — 불변성 보장, 순환 의존 조기 발견, 테스트 용이.",
+          "Lookup 메서드 주입 — 컨테이너가 직접 객체를 만들어주는 방식."
+        ],
+        "answer": 2,
+        "explanation": "Spring 팀과 김영한 강의를 포함한 많은 권위자들이 **생성자 주입**을 권장합니다. 이유: (1) `final`로 의존성을 묶어 불변성 보장, (2) 인스턴스 생성 시점에 모든 의존성이 주입되어 누락 방지, (3) 순환 의존을 컨테이너 시작 시점에 발견, (4) 테스트 시 `new OrderService(mockRepo)`로 명시적 주입. 생성자가 하나면 `@Autowired`도 생략 가능합니다.",
+        "xp": 10
+      },
+      {
+        "id": "scb-05",
+        "type": "mcq",
+        "chapter": "spring-core-basic",
+        "prompt": "다음 코드의 **문제점**으로 가장 적절한 것은?\n\n```java\n@Service\npublic class OrderService {\n    @Autowired\n    private OrderRepository orderRepository;\n\n    public Order findById(Long id) {\n        return orderRepository.findById(id).orElseThrow();\n    }\n}\n```",
+        "choices": [
+          "컴파일 에러 — `@Autowired`는 생성자에서만 동작한다.",
+          "`orderRepository`에 `final`을 붙일 수 없고, 테스트 시 리플렉션이 필요해진다.",
+          "`@Service`가 아니라 `@Component`를 써야 한다.",
+          "런타임에 `NullPointerException`이 무조건 발생한다."
+        ],
+        "answer": 1,
+        "explanation": "필드 주입은 `final` 키워드를 못 붙여 객체가 중간에 변경될 수 있고, 단위 테스트에서 목(mock)을 주입하려면 `ReflectionTestUtils` 같은 리플렉션 도구가 필요합니다. 그래서 가능하면 생성자 주입으로 바꾸는 것이 권장됩니다.",
+        "xp": 15
+      },
+      {
+        "id": "scb-06",
+        "type": "mcq",
+        "chapter": "spring-core-basic",
+        "prompt": "위 코드를 **생성자 주입**으로 올바르게 바꾼 것은?",
+        "choices": [
+          "```java\n@Service\npublic class OrderService {\n    private final OrderRepository orderRepository;\n\n    public OrderService(OrderRepository orderRepository) {\n        this.orderRepository = orderRepository;\n    }\n}\n```",
+          "```java\n@Service\npublic class OrderService extends OrderRepository { }\n```",
+          "```java\n@Service\npublic class OrderService {\n    public void setOrderRepository(OrderRepository r) { /* ... */ }\n}\n```",
+          "```java\n@Service\npublic class OrderService {\n    public OrderRepository orderRepository = new OrderRepositoryImpl();\n}\n```"
+        ],
+        "answer": 0,
+        "explanation": "생성자 주입 + `final` 키워드가 가장 안전합니다. (1)은 DIP 준수, (4)는 구체 클래스에 직접 의존해 DIP 위배입니다. 생성자가 하나일 때 Spring 4.3+ 부터는 `@Autowired`를 생략해도 자동으로 주입됩니다.",
+        "xp": 10
+      },
+      {
+        "id": "scb-07",
+        "type": "mcq",
+        "chapter": "spring-core-basic",
+        "prompt": "Spring의 **ApplicationContext**와 **BeanFactory**의 관계로 가장 정확한 것은?",
+        "choices": [
+          "둘은 완전히 다른 인터페이스로, 아무 관계가 없다.",
+          "ApplicationContext는 BeanFactory의 **하위 인터페이스**로, 국제화/이벤트/AOP 등 부가 기능을 확장한 것이다.",
+          "BeanFactory는 deprecated 되었고, ApplicationContext만 사용해야 한다.",
+          "BeanFactory가 더 큰 기능 묶음이고, ApplicationContext는 그 일부분이다."
+        ],
+        "answer": 1,
+        "explanation": "ApplicationContext는 BeanFactory를 상속받아 메시지 소스 국제화(i18n), 이벤트 발행(`ApplicationEventPublisher`), AOP 통합, 웹 애플리케이션 컨텍스트 같은 부가 기능을 제공합니다. 실무에서는 대부분 ApplicationContext를 사용하고, BeanFactory는 스프링의 가장 기본적인 IoC 컨테이너 인터페이스입니다.",
+        "xp": 15
+      },
+      {
+        "id": "scb-08",
+        "type": "mcq",
+        "chapter": "spring-core-basic",
+        "prompt": "Spring Bean의 **기본 스코프**는 무엇인가?",
+        "choices": [
+          "prototype",
+          "request",
+          "**singleton**",
+          "session"
+        ],
+        "answer": 2,
+        "explanation": "Spring Bean의 기본 스코프는 `singleton`입니다. 컨테이너당 한 개의 인스턴스만 만들어져 모든 주입 지점에서 공유됩니다. 그래서 **상태를 가지면 안 됩니다** (가변 필드는 동시성 문제). 그 외 스코프: `prototype` (요청마다 새 인스턴스), `request` (HTTP 요청당), `session` (HTTP 세션당), `application` (서블릿 컨텍스트당). 웹 스코프(request/session/application)는 웹 환경에서만 사용 가능합니다.",
+        "xp": 10
+      },
+      {
+        "id": "scb-09",
+        "type": "mcq",
+        "chapter": "spring-core-basic",
+        "prompt": "`@Scope(\"prototype\")`로 등록된 Bean에 대한 설명으로 **옳은** 것은?",
+        "choices": [
+          "컨테이너당 한 번만 생성되어 모든 곳에서 공유된다.",
+          "조회할 때마다(또는 주입 시점에) **새 인스턴스**가 만들어진다.",
+          "싱글톤이 보장되지 않으면 컴파일 에러가 발생한다.",
+          "HTTP 요청마다 자동으로 소멸된다."
+        ],
+        "answer": 1,
+        "explanation": "Prototype 스코프는 빈을 조회(`getBean`)하거나 주입할 때마다 **새 인스턴스**를 생성합니다. 하지만 한 가지 함정이 있습니다: **Prototype Bean은 소멸 콜백(`@PreDestroy`)이 호출되지 않습니다**. 컨테이너가 생성만 하고 폐기 책임은 클라이언트에게 있기 때문입니다.",
+        "xp": 15
+      },
+      {
+        "id": "scb-10",
+        "type": "mcq",
+        "chapter": "spring-core-basic",
+        "prompt": "Singleton Bean이 Prototype Bean을 **필드**로 주입받으면, Singleton의 생명주기 동안 Prototype은 몇 번 생성되는가?",
+        "choices": [
+          "주입 시점 1번만 생성된다 (싱글톤이 끝날 때까지 같은 인스턴스).",
+          "싱글톤이 사용될 때마다 매번 새로 생성된다.",
+          "프로토타입이 무시되고 결국 싱글톤이 된다.",
+          "컴파일 에러가 발생한다."
+        ],
+        "answer": 0,
+        "explanation": "싱글톤 빈은 컨테이너 시작 시 한 번만 생성되고, 그때 프로토타입 빈도 **딱 한 번만 주입**됩니다. 이후 싱글톤이 살아있는 동안에는 같은 프로토타입 인스턴스를 계속 사용합니다. 매번 새 프로토타입을 받고 싶으면 (1) `ObjectProvider`나 `ObjectFactory` 사용, (2) `Provider<T>` (JSR-330), (3) `@Scope(\"prototype\", proxyMode = ScopedProxyMode.TARGET_CLASS)` 사용해야 합니다.",
+        "xp": 20
+      },
+      {
+        "id": "scb-11",
+        "type": "mcq",
+        "chapter": "spring-core-basic",
+        "prompt": "Spring Bean의 **생명주기 콜백**에서 가장 먼저 호출되는 것은?",
+        "choices": [
+          "`@PostConstruct`",
+          "`afterPropertiesSet()` (InitializingBean)",
+          "**의존관계 주입 완료 시점** (생성자 → setter/필드 주입 끝남)",
+          "`@PreDestroy`"
+        ],
+        "answer": 2,
+        "explanation": "Bean 생명주기: (1) **생성자 호출** → (2) **의존관계 주입** (수정자/필드) → (3) **초기화 콜백** (`@PostConstruct` / `afterPropertiesSet` / 커스텀 init 메서드) → (4) **사용** → (5) **소멸 콜백** (`@PreDestroy` / `destroy` / 커스텀 destroy 메서드). 생성자에서는 주입이 끝나지 않아 `null`인 의존성이 있을 수 있으니, **초기화 콜백에서 무거운 작업(연결, 캐시 로딩 등)** 을 하는 것이 안전합니다.",
+        "xp": 15
+      },
+      {
+        "id": "scb-12",
+        "type": "mcq",
+        "chapter": "spring-core-basic",
+        "prompt": "다음 중 Spring이 권장하는 **초기화/소멸 콜백** 방식은?",
+        "choices": [
+          "`InitializingBean`, `DisposableBean` 인터페이스 구현",
+          "XML `<bean init-method=\"...\"/>` 설정",
+          "**`@PostConstruct` / `@PreDestroy` 어노테이션**",
+          "생성자에서 모든 초기화 로직 직접 수행"
+        ],
+        "answer": 2,
+        "explanation": "Spring은 코드 위에서 콜백을 식별할 수 있는 `@PostConstruct` / `@PreDestroy` JSR-250 어노테이션을 권장합니다. 인터페이스 방식(InitializingBean)은 스프링 코드에 의존하고, XML 방식은 코드를 봐야 알 수 있어 유지보수가 떨어집니다. 생성자에서 무거운 작업을 하면 의존성 주입이 끝나지 않아 위험합니다.",
+        "xp": 10
+      },
+      {
+        "id": "scb-13",
+        "type": "mcq",
+        "chapter": "spring-core-basic",
+        "prompt": "`@Configuration`이 붙은 클래스 안에서 `@Bean` 메서드를 호출하면 어떻게 동작하는가?",
+        "choices": [
+          "항상 새로운 인스턴스가 반환된다.",
+          "**Spring 컨테이너가 메서드를 가로채서 이미 등록된 싱글톤 빈을 반환한다(CGLIB 프록시)**.",
+          "`@Configuration`이 없으면 매번 새 인스턴스가 만들어진다.",
+          "런타임 에러가 발생한다."
+        ],
+        "answer": 1,
+        "explanation": "Spring은 `@Configuration` 클래스를 CGLIB으로 프록시 처리합니다. 그래서 `@Bean public A a() { return new A(b()); }`처럼 내부에서 다른 `@Bean`을 호출해도, 매번 `new`하지 않고 **컨테이너에서 싱글톤 빈을 조회해서 반환**합니다. (1)번 동작이 더 직관적이지만, 이래야 모든 `@Bean`이 단일 인스턴스로 일관성 있게 동작합니다. `@Configuration`이 빠지면(`@Component`만 붙으면) 이 보장이 사라집니다.",
+        "xp": 20
+      },
+      {
+        "id": "scb-14",
+        "type": "mcq",
+        "chapter": "spring-core-basic",
+        "prompt": "`@Autowired`로 같은 타입의 빈이 두 개 이상 발견되면 어떻게 되는가?",
+        "choices": [
+          "컴파일 에러가 발생한다.",
+          "가장 먼저 등록된 빈이 무조건 사용된다.",
+          "애플리케이션 시작 시 **`NoUniqueBeanDefinitionException`** 이 던져진다.",
+          "런타임에 무작위로 하나가 선택된다."
+        ],
+        "answer": 2,
+        "explanation": "타입이 같은 빈이 여러 개면 Spring이 어떤 걸 주입할지 모릅니다. 이때 `NoUniqueBeanDefinitionException`이 발생합니다. 해결책: (1) `@Primary`를 구현체에 붙이기, (2) `@Qualifier(\"빈이름\")`로 명시, (3) **필드명을 빈 이름과 일치시키기** (예: `private OrderRepository jpaOrderRepository;` — JPA 구현체 빈 이름이 `jpaOrderRepository`라면 자동 매칭).",
+        "xp": 15
+      },
+      {
+        "id": "scb-15",
+        "type": "mcq",
+        "chapter": "spring-core-basic",
+        "prompt": "`@Primary`와 `@Qualifier`의 차이로 가장 적절한 것은?",
+        "choices": [
+          "`@Primary`는 클래스에만, `@Qualifier`는 메서드에만 붙일 수 있다.",
+          "`@Primary`는 같은 타입 빈이 여러 개일 때 **우선순위**를 지정하고, `@Qualifier(\"이름\")`은 **빈 이름으로 명시적 주입**한다.",
+          "둘은 완전히 같은 기능이다.",
+          "`@Primary`는 컴파일 타임, `@Qualifier`는 런타임에 동작한다."
+        ],
+        "answer": 1,
+        "explanation": "`@Primary`는 같은 타입의 빈이 여러 개일 때 우선적으로 주입할 빈을 표시합니다(전역 우선순위). `@Qualifier(\"이름\")`은 주입 지점에서 어떤 빈을 받을지 빈 이름으로 명시합니다(로컬 지정). 둘을 함께 쓰면 `@Qualifier`가 더 우선합니다. `@Primary`를 메인 DB 구현체에 두고, 테스트나 부가 기능 구현체는 `@Qualifier`로 명시적으로 받는 식으로 흔히 조합합니다.",
+        "xp": 15
+      },
+      {
+        "id": "scb-16",
+        "type": "mcq",
+        "chapter": "spring-core-basic",
+        "prompt": "다음 코드에서 `@Value(\"${app.name}\")`가 잘 동작하려면 필요한 것은?\n\n```java\n@Component\npublic class AppInfo {\n    @Value(\"${app.name}\")\n    private String name;\n}\n```",
+        "choices": [
+          "`@Component` 어노테이션만 있으면 된다.",
+          "`application.properties`나 `application.yml`에 `app.name=...` 같은 키가 정의되어 있어야 한다.",
+          "반드시 `@PropertySource(\"classpath:app.properties\")`를 써야 한다.",
+          "`@Value`는 사용 금지된 레거시 어노테이션이다."
+        ],
+        "answer": 1,
+        "explanation": "`@Value(\"${app.name}\")`는 Spring의 `PropertySourcesPlaceholderConfigurer`가 `${...}` 플레이스홀더를 `Environment`에서 조회한 값으로 치환합니다. Boot의 경우 `application.properties` 또는 `application.yml`이 자동으로 PropertySource로 등록되므로 별도 설정 없이 동작합니다. (3)은 별도 properties 파일을 쓸 때만 필요합니다.",
+        "xp": 10
+      },
+      {
+        "id": "scb-17",
+        "type": "mcq",
+        "chapter": "spring-core-basic",
+        "prompt": "Spring에서 **롬복(Lombok)**의 `@RequiredArgsConstructor`와 `final` 필드를 함께 쓰는 패턴의 주된 이점은?",
+        "choices": [
+          "런타임에 자동으로 AOP 프록시가 적용된다.",
+          "**생성자 코드를 자동 생성**해서 보일러플레이트 없이 생성자 주입을 적용할 수 있다.",
+          "직렬화/역직렬화가 자동 처리된다.",
+          "리플렉션 기반 setter 호출이 자동 활성화된다."
+        ],
+        "answer": 1,
+        "explanation": "`@RequiredArgsConstructor`는 클래스 내 `final` 필드(또는 `@NonNull` 필드)에 대한 **생성자를 자동 생성**합니다. 그래서 `private final OrderRepository orderRepository;` 하나만 선언해도, `public OrderService(OrderRepository repo) { this.repo = repo; }`를 Lombok이 만들어줍니다. (2)번 패턴이 가능해진 배경입니다.",
+        "xp": 10
+      },
+      {
+        "id": "scb-18",
+        "type": "mcq",
+        "chapter": "spring-core-basic",
+        "prompt": "**순환 의존(Circular Dependency)**이 발생했을 때 Spring의 기본 동작은?",
+        "choices": [
+          "조용히 무시하고 null로 주입한다.",
+          "**애플리케이션 시작 시 `BeanCurrentlyInCreationException`을 던진다** (생성자 주입의 경우).",
+          "두 빈을 합쳐서 하나로 만든다.",
+          "런타임에 한 번만 더 시도해서 성공하면 계속 진행한다."
+        ],
+        "answer": 1,
+        "explanation": "A가 B를 필요로 하고 B가 A를 필요로 하는 구조가 **생성자 주입**이면 컨테이너가 빈을 만들 수 없어 시작 시점에 예외가 발생합니다. **필드/수정자 주입**은 빈 자체는 만들고 주입 시점에 발견되어 늦게 터집니다. 그래서 생성자 주입이 순환 의존을 빨리 발견하는 장점이 있습니다. 해결: (1) 구조 변경, (2) `@Lazy` 주입, (3) `ObjectProvider` 사용.",
+        "xp": 15
+      },
+      {
+        "id": "scb-19",
+        "type": "mcq",
+        "chapter": "spring-core-basic",
+        "prompt": "`@Component` / `@Service` / `@Repository` / `@Controller` 4개 어노테이션 중 **다른 3개와 컴포넌트 스캔 동작이 다른** 것은?",
+        "choices": [
+          "`@Component`",
+          "`@Service`",
+          "**없다** (모두 동일한 컴포넌트 스캔 대상이며, 차이는 의도 표현뿐이다).",
+          "`@Repository` — 자동 트랜잭션이 걸린다."
+        ],
+        "answer": 2,
+        "explanation": "4개 모두 컴포넌트 스캔 대상이고 동작은 동일합니다. `@Service`/`@Repository`/`@Controller`는 내부적으로 `@Component`를 메타 어노테이션으로 포함합니다. 차이는 **의도를 드러내는 것**일 뿐, 트랜잭션/매핑 같은 부가 기능은 별도 어노테이션(`@Transactional`, `@RequestMapping`)으로 활성화해야 합니다. 흔한 오해: '`@Repository`는 자동으로 예외 변환까지 해준다'는 게 맞긴 하지만, 그것은 스프링의 `PersistenceExceptionTranslationPostProcessor`가 `@Repository`를 보고 AOP로 부착하는 **부가 기능**이라 컴포넌트 스캔 자체와는 별개입니다.",
+        "xp": 15
+      },
+      {
+        "id": "scb-20",
+        "type": "mcq",
+        "chapter": "spring-core-basic",
+        "prompt": "Spring의 **빈 조회** 메서드인 `ac.getBean(타입.class)`가 존재하지 않는 빈에 대해 던지는 예외는?",
+        "choices": [
+          "`IllegalArgumentException`",
+          "`NoSuchBeanDefinitionException`",
+          "`BeanCreationException`",
+          "`NullPointerException`"
+        ],
+        "answer": 1,
+        "explanation": "`ApplicationContext#getBean()`은 빈이 없거나, 같은 타입의 빈이 여러 개면 `NoSuchBeanDefinitionException` 또는 `NoUniqueBeanDefinitionException`을 던집니다. 부팅 시점에 잡아주는 게 가장 안전하고, 조건부로 빈을 가져오고 싶으면 `ObjectProvider`나 `@Autowired(required = false)` 또는 Java 8의 `Optional<>`을 쓰는 것이 관례입니다.",
+        "xp": 15
+      }
+    ]
+  },
+  {
+    "id": "http-web",
+    "title": "HTTP 웹 기본 지식",
+    "blurb": "HTTP 메서드(GET/POST/PUT/DELETE/PATCH)와 멱등성, 상태코드 1xx~5xx, 요청/응답 헤더, REST 제약 조건, 캐시 무효화, 쿠키/세션, Stateless — 모든 백엔드 개발자가 반드시 알아야 할 HTTP.",
+    "track": "Web",
+    "order": 9,
+    "estMinutes": 90,
+    "questions": [
+      {
+        "id": "hw-01",
+        "type": "mcq",
+        "chapter": "http-web",
+        "prompt": "HTTP에서 **GET** 메서드의 특징으로 가장 정확한 것은?",
+        "choices": [
+          "서버 상태를 변경하는 데 주로 사용한다.",
+          "**서버 리소스를 조회**하며, 멱등(idempotent)이고, 요청 본문(body)을 거의 사용하지 않는다.",
+          "반드시 HTTP 헤더에 `Content-Type: application/json`이 있어야 한다.",
+          "응답으로 200번대만 반환할 수 있다."
+        ],
+        "answer": 1,
+        "explanation": "GET은 **조회**용이며 **멱등**(같은 요청을 여러 번 보내도 서버 상태가 동일)입니다. 안전(Safe) 메서드라 부르기도 합니다. RFC 9110은 GET에 body 사용을 권장하지 않으며, 보통 query string으로 데이터를 전달합니다. POST/PUT/DELETE와 구분되는 핵심 특징입니다.",
+        "xp": 10
+      },
+      {
+        "id": "hw-02",
+        "type": "mcq",
+        "chapter": "http-web",
+        "prompt": "**멱등(Idempotent)**의 의미로 가장 적절한 것은?",
+        "choices": [
+          "요청을 보내면 항상 같은 응답 본문을 받는다.",
+          "같은 요청을 여러 번 보내도 **서버의 최종 상태가 동일**하다.",
+          "응답까지 걸리는 시간이 일정하다.",
+          "HTTP 메서드 중 GET만 가질 수 있는 속성이다."
+        ],
+        "answer": 1,
+        "explanation": "멱등은 '같은 연산을 여러 번 적용해도 결과가 같음'입니다. 예: `DELETE /users/1`을 5번 호출해도, 두 번째부터는 사용자가 없으니 404를 받지만 **최종 상태(사용자 없음)**는 동일. GET/PUT/DELETE는 멱등, POST/PATCH는 비멱등(연속 호출 시 새 주문/수정이 누적될 수 있음)입니다.",
+        "xp": 10
+      },
+      {
+        "id": "hw-03",
+        "type": "mcq",
+        "chapter": "http-web",
+        "prompt": "HTTP 상태 코드 **201 Created**의 의미로 가장 적절한 것은?",
+        "choices": [
+          "요청이 성공적으로 처리되었다 (일반적인 200).",
+          "**요청이 성공했고, 새로운 리소스가 생성되었다** (보통 POST 응답).",
+          "요청을 이해했지만 처리하지 않았다.",
+          "인증이 필요하다."
+        ],
+        "answer": 1,
+        "explanation": "201 Created는 POST/PUT 요청으로 새 리소스가 만들어졌을 때 사용합니다. 관례적으로 응답 본문에 생성된 리소스나 `Location: /users/42` 헤더를 함께 보내 클라이언트가 새 위치를 알 수 있게 합니다. 200 OK는 일반 성공, 204 No Content는 성공이지만 응답 본문이 없을 때(예: DELETE) 씁니다.",
+        "xp": 10
+      },
+      {
+        "id": "hw-04",
+        "type": "mcq",
+        "chapter": "http-web",
+        "prompt": "REST API에서 **존재하지 않는 리소스 조회** 시 가장 적절한 상태 코드는?",
+        "choices": [
+          "200 OK (본문은 null)",
+          "**404 Not Found**",
+          "400 Bad Request",
+          "500 Internal Server Error"
+        ],
+        "answer": 1,
+        "explanation": "404 Not Found는 서버가 요청한 리소스를 찾을 수 없을 때(또는 존재하지 않음을 명시적으로 밝히고 싶을 때) 사용합니다. 200 + null body는 클라이언트가 '없음'을 식별하기 어렵게 만듭니다. 인증/권한 문제라면 401/403, 요청 문법 자체가 잘못되면 400, 권한은 있지만 다른 사람 리소스라면 403/404 중 정책에 따라 다릅니다.",
+        "xp": 10
+      },
+      {
+        "id": "hw-05",
+        "type": "mcq",
+        "chapter": "http-web",
+        "prompt": "**401 Unauthorized**와 **403 Forbidden**의 차이로 가장 적절한 것은?",
+        "choices": [
+          "둘은 같은 의미이며, 관습에 따라 섞어 쓴다.",
+          "**401은 인증 실패(누구인지 모름)**, **403은 인증됐지만 권한 없음(누구인지는 알지만 허용 안 됨)**.",
+          "401은 서버 에러, 403은 클라이언트 에러다.",
+          "401은 HTTPS에서만, 403은 HTTP에서만 쓰인다."
+        ],
+        "answer": 1,
+        "explanation": "401 Unauthorized (RFC 9110 기준 'Unauthenticated'로 명명 권고)는 **신원이 확인되지 않음**(토큰 없음/만료/위조)일 때, 403 Forbidden은 **신원은 알지만 권한 부족**(예: 일반 유저가 관리자 페이지 접근)일 때 사용합니다. 둘 다 WWW-Authenticate 헤더나 에러 본문으로 상세 이유를 알려주는 게 좋습니다.",
+        "xp": 10
+      },
+      {
+        "id": "hw-06",
+        "type": "mcq",
+        "chapter": "http-web",
+        "prompt": "HTTP **Content-Type** 헤더의 역할로 가장 정확한 것은?",
+        "choices": [
+          "요청 본문의 길이를 바이트 단위로 명시한다.",
+          "**요청/응답 본문의 미디어 타입** (예: `application/json`, `text/html`)을 알려준다.",
+          "서버가 지원하는 압축 방식을 나열한다.",
+          "클라이언트의 브라우저 종류를 식별한다."
+        ],
+        "answer": 1,
+        "explanation": "Content-Type은 본문(body)의 **MIME 타입**을 알려줍니다. 예: `application/json; charset=UTF-8`. 서버는 이 헤더로 응답 파싱 방식을 결정하고, 클라이언트는 본문 디코딩에 사용합니다. 본문이 없으면 이 헤더도 보내지 않는 게 일반적입니다.",
+        "xp": 10
+      },
+      {
+        "id": "hw-07",
+        "type": "mcq",
+        "chapter": "http-web",
+        "prompt": "**REST(REpresentational State Transfer)**의 핵심 제약 조건 6가지 중 하나로 **옳지 않은** 것은?",
+        "choices": [
+          "Client-Server (클라이언트-서버 구조)",
+          "Stateless (무상태)",
+          "Cacheable (캐시 가능)",
+          "**Stateful Connection (상태 유지 연결)**"
+        ],
+        "answer": 3,
+        "explanation": "Roy Fielding의 REST 제약 6개: (1) Client-Server, (2) Stateless, (3) Cacheable, (4) Uniform Interface, (5) Layered System, (6) Code-On-Demand (선택). **Stateful**은 REST의 정반대 개념입니다. REST는 각 요청이 독립적이고 서버가 클라이언트 상태를 보존하지 않아야 합니다(Stateless).",
+        "xp": 15
+      },
+      {
+        "id": "hw-08",
+        "type": "mcq",
+        "chapter": "http-web",
+        "prompt": "HTTP가 **Stateless(무상태)**여서 얻는 가장 큰 이점은?",
+        "choices": [
+          "요청마다 서버가 클라이언트의 이전 상태를 기억해 빠르다.",
+          "**서버를 수평 확장(스케일 아웃)하기 쉽다** — 어떤 서버로 요청이 가도 동일한 응답을 줄 수 있다.",
+          "쿠키/세션 없이도 로그인이 자동으로 유지된다.",
+          "응답이 항상 작아서 네트워크 비용이 줄어든다."
+        ],
+        "answer": 1,
+        "explanation": "Stateless의 핵심 이점은 **수평 확장성**입니다. 각 요청에 필요한 모든 정보(토큰 등)가 담기기 때문에, N대 서버 중 어디로 라우팅해도 동일한 응답을 줄 수 있습니다. 반대로 Stateful이면 세션을 특정 서버에 고정해야 해서 Sticky Session 같은 트릭이 필요합니다. 단점은 매 요청에 토큰/메타데이터가 포함되어 **요청 크기가 커지고**, 로그인 상태 같은 것은 클라이언트가 토큰으로 매번 보내야 유지됩니다.",
+        "xp": 15
+      },
+      {
+        "id": "hw-09",
+        "type": "mcq",
+        "chapter": "http-web",
+        "prompt": "**HTTP Cache**를 제어하는 응답 헤더로 **옳은** 것은?",
+        "choices": [
+          "`Content-Length`",
+          "`Cache-Control: max-age=3600` (1시간 캐시 가능)",
+          "`User-Agent`",
+          "`Accept-Encoding`"
+        ],
+        "answer": 1,
+        "explanation": "`Cache-Control` 헤더로 캐시 동작을 제어합니다. `max-age=3600`은 1시간 동안 캐시 신선, `no-cache`는 캐시 가능하지만 사용 전 재검증, `no-store`는 캐시 금지. (1)은 본문 길이, (3)은 클라이언트 정보, (4)는 클라이언트가 받을 수 있는 압축 방식(예: gzip)입니다.",
+        "xp": 10
+      },
+      {
+        "id": "hw-10",
+        "type": "mcq",
+        "chapter": "http-web",
+        "prompt": "**쿠키(Cookie)**와 **세션(Session)**의 차이로 가장 적절한 것은?",
+        "choices": [
+          "둘은 같은 의미이며, 부르는 이름만 다르다.",
+          "**쿠키는 클라이언트(브라우저)에 저장되는 키-값 데이터**이고, **세션은 서버에 저장되는 사용자 상태**. 클라이언트는 보통 세션 ID만 쿠키로 들고 다닌다.",
+          "쿠키는 서버에, 세션은 클라이언트에 저장된다.",
+          "둘 다 HTTP와 무관한 별도 프로토콜이다."
+        ],
+        "answer": 1,
+        "explanation": "**쿠키**: `Set-Cookie` 응답 헤더로 브라우저에 저장되는 작은 텍스트 데이터(4KB 이하 권장). 매 요청에 자동으로 `Cookie` 헤더로 전송됩니다. **세션**: 서버 메모리/Redis/DB에 저장되는 사용자 상태 객체. 클라이언트는 보통 `JSESSIONID`, `connect.sid` 같은 세션 ID만 쿠키로 들고 다닙니다. Stateless 원칙상 인증 정보(특히 JWT)도 쿠키 또는 Authorization 헤더로 매번 보내는 것이 일반적입니다.",
+        "xp": 15
+      },
+      {
+        "id": "hw-11",
+        "type": "mcq",
+        "chapter": "http-web",
+        "prompt": "**HTTPS**에서 TLS가 제공하는 핵심 보안 속성 3가지로 **옳은** 것은?",
+        "choices": [
+          "압축, 캐싱, 로드밸런싱",
+          "**기밀성(Confidentiality), 무결성(Integrity), 인증(Authentication)**",
+          "익명성, 영속성, 가용성",
+          "인코딩, 디코딩, 파싱"
+        ],
+        "answer": 1,
+        "explanation": "TLS는 (1) **기밀성**: 대칭키 암호로 평문 통신을 암호화, (2) **무결성**: MAC/해시로 중간 변조 탐지, (3) **인증**: 서버(및 선택적 클라이언트) 신원을 인증서로 확인. 이 셋을 합쳐 'CIA triad'라고도 부릅니다.",
+        "xp": 10
+      },
+      {
+        "id": "hw-12",
+        "type": "mcq",
+        "chapter": "http-web",
+        "prompt": "**CORS(Cross-Origin Resource Sharing)**가 필요한 이유로 가장 적절한 것은?",
+        "choices": [
+          "서버가 클라이언트의 IP 주소를 알기 위해.",
+          "**브라우저의 동일 출처 정책(SOP)** 으로 인해 다른 출처(도메인/포트/스킴) 요청이 차단되는 문제를 풀기 위해.",
+          "HTTP를 HTTPS로 자동 업그레이드하기 위해.",
+          "CORS는 더 이상 사용되지 않는 레거시다."
+        ],
+        "answer": 1,
+        "explanation": "브라우저는 **동일 출처 정책(SOP)** 으로 다른 출처로의 요청을 기본 차단합니다. `https://a.com`에서 `https://api.b.com`을 호출하면 브라우저가 막습니다. 서버가 응답에 `Access-Control-Allow-Origin: https://a.com` 같은 CORS 헤더를 넣으면 예외적으로 허용됩니다. `Access-Control-Allow-Credentials: true`로 쿠키까지 허용할 수 있습니다. (서버 간 통신에는 CORS가 적용되지 않고, 브라우저에서만 적용됩니다.)",
+        "xp": 15
+      },
+      {
+        "id": "hw-13",
+        "type": "mcq",
+        "chapter": "http-web",
+        "prompt": "RESTful API에서 자원을 나타내는 **URI 설계**로 가장 적절한 것은?",
+        "choices": [
+          "`/getUser?id=42`",
+          "`/users/42`",
+          "`/Users/42`",
+          "`/user_info/show/42`"
+        ],
+        "answer": 1,
+        "explanation": "RESTful URI는 **명사 + 소문자 복수형 + 슬래시로 계층**을 표현합니다. 행위는 HTTP 메서드(GET/POST/PUT/DELETE)로 표현하므로 URI에 동사(`getUser`)를 넣지 않습니다. (1)은 RPC 스타일, (3)은 대문자/단수형, (4)는 snake_case와 동사가 섞여 부적절합니다. (2)가 가장 권장되는 형태입니다.",
+        "xp": 10
+      },
+      {
+        "id": "hw-14",
+        "type": "mcq",
+        "chapter": "http-web",
+        "prompt": "**HTTP 요청 본문(body)**에 JSON을 담아 보내려고 한다. 클라이언트가 보내야 할 핵심 헤더 2개는?",
+        "choices": [
+          "`Accept: text/html`, `Content-Length: 0`",
+          "`Content-Type: application/json`, `Content-Length: <바이트 수>`",
+          "`Cookie: session=...`, `Host: api.example.com`",
+          "`Cache-Control: no-store`, `Authorization: Bearer ...`"
+        ],
+        "answer": 1,
+        "explanation": "본문에 JSON을 보낼 때는 서버가 파싱할 수 있도록 `Content-Type: application/json; charset=UTF-8`을, 본문이 잘렸는지 판단할 수 있도록 `Content-Length`를 명시해야 합니다. `Accept`는 클라이언트가 **받고 싶은** 타입(서버 응답 타입 협상), `Content-Type`은 클라이언트가 **보내는** 본문 타입이라는 차이가 있습니다.",
+        "xp": 10
+      },
+      {
+        "id": "hw-15",
+        "type": "mcq",
+        "chapter": "http-web",
+        "prompt": "**HTTP/1.1**, **HTTP/2**, **HTTP/3**의 주요 차이로 가장 적절한 것은?",
+        "choices": [
+          "HTTP/3는 HTTP/1.1보다 느리다.",
+          "**HTTP/2는 멀티플렉싱/헤더 압축/서버 푸시**를 추가했고, **HTTP/3는 UDP 기반 QUIC**을 사용해 핸드셰이크 지연을 크게 줄였다.",
+          "HTTP/1.1은 암호화가 강제된다.",
+          "HTTP/2는 HTTP/1.1과 완전히 호환되지 않는다."
+        ],
+        "answer": 1,
+        "explanation": "**HTTP/1.1**: 텍스트 기반, 요청-응답이 순차적(파이프라이닝 제한적). **HTTP/2**: 바이너리 프레이밍 + 멀티플렉싱(한 연결에서 여러 요청 동시), HPACK 헤더 압축, 서버 푸시. **HTTP/3**: TCP 대신 UDP 기반의 **QUIC**을 써서 핸드셰이크 줄이고 패킷 손실에 강함. 모두 하위 호환을 어느 정도 유지합니다.",
+        "xp": 15
+      },
+      {
+        "id": "hw-16",
+        "type": "mcq",
+        "chapter": "http-web",
+        "prompt": "HTTP 메서드 **PUT**과 **PATCH**의 차이로 가장 적절한 것은?",
+        "choices": [
+          "둘은 같은 의미이며, 관습에 따라 섞어 쓴다.",
+          "**PUT은 리소스 전체 교체(또는 멱등 생성)**, **PATCH는 리소스의 일부만 수정**.",
+          "PUT은 조회, PATCH는 삭제다.",
+          "PUT은 body가 없고, PATCH만 body를 보낸다."
+        ],
+        "answer": 1,
+        "explanation": "**PUT /users/42 {name, email, age, ...}**: 해당 리소스를 통째로 교체(빠진 필드는 null/기본값). 멱등입니다. **PATCH /users/42 {email}**: 일부만 수정. 본문은 보통 JSON Patch나 merge patch 포맷. 멱등이 아닐 수 있습니다. 실무에서는 PATCH의 멱등성을 보장하기 위해 `PUT`을 부분 업데이트에 쓰는 경우도 많습니다(관례).",
+        "xp": 10
+      },
+      {
+        "id": "hw-17",
+        "type": "mcq",
+        "chapter": "http-web",
+        "prompt": "**JWT(JSON Web Token)**를 HTTP 요청으로 보낼 때 가장 흔히 쓰이는 헤더 형식은?",
+        "choices": [
+          "`Cookie: jwt=...`",
+          "`Authorization: Bearer <token>`",
+          "`X-Auth-Token: <token>`",
+          "`Set-Cookie: <token>`"
+        ],
+        "answer": 1,
+        "explanation": "RFC 6750에 따라 OAuth 2.0/JWT를 보낼 때는 `Authorization: Bearer <token>`이 표준입니다. (3)도 자주 보이지만 비표준이고 호환성이 떨어집니다. (1)은 쿠키 기반 인증, (4)는 서버가 클라이언트에 쿠키를 설정하라는 응답 헤더입니다. CSRF 방지가 필요 없는 stateless API에서는 Bearer 토큰이 가장 일반적입니다.",
+        "xp": 10
+      },
+      {
+        "id": "hw-18",
+        "type": "mcq",
+        "chapter": "http-web",
+        "prompt": "**OPTIONS** 메서드의 일반적인 용도로 가장 적절한 것은?",
+        "choices": [
+          "서버 상태 확인용 헬스 체크.",
+          "**CORS 사전 요청(preflight)** — `Access-Control-Allow-Methods` 같은 허용 메서드/헤더를 확인.",
+          "리소스 삭제를 안전하게 처리.",
+          "응답 본문이 비어있는 GET."
+        ],
+        "answer": 1,
+        "explanation": "OPTIONS는 '이 자원에 대해 어떤 메서드/헤더를 사용할 수 있는가?'를 묻는 메서드입니다. CORS에서 **preflight**(본 요청 전 사전 검사)로 가장 흔히 쓰입니다. 브라우저가 `Content-Type: application/json` 같은 non-simple 요청을 보내기 전에 자동으로 `OPTIONS`를 날려 서버가 허용하는지 확인합니다.",
+        "xp": 10
+      },
+      {
+        "id": "hw-19",
+        "type": "mcq",
+        "chapter": "http-web",
+        "prompt": "**302 Found**와 **301 Moved Permanently**의 차이로 가장 적절한 것은?",
+        "choices": [
+          "둘은 같은 의미이며, 관습에 따라 섞어 쓴다.",
+          "**301은 영구 이동(검색엔진이 인덱스 업데이트)**, **302는 임시 이동(원래 URL 유지)**.",
+          "301은 HTTPS, 302는 HTTP에서만 쓰인다.",
+          "301은 body가 있고, 302는 없다."
+        ],
+        "answer": 1,
+        "explanation": "**301 Moved Permanently**: 자원이 영구적으로 이동. 브라우저/검색엔진이 새 URL로 갱신하고 이후에는 새 URL로 직접 요청. **302 Found** (구 302 Moved Temporarily): 일시적 이동. 클라이언트는 원래 URL을 유지하고 매번 리다이렉트. **303 See Other**는 POST 후 GET으로 리다이렉트 시 권장됩니다(PRG 패턴).",
+        "xp": 10
+      },
+      {
+        "id": "hw-20",
+        "type": "mcq",
+        "chapter": "http-web",
+        "prompt": "**WebSocket**의 특징으로 가장 적절한 것은?",
+        "choices": [
+          "HTTP/1.1 위에서 매 요청마다 새 TCP 연결을 연다.",
+          "**한 번 핸드셰이크로 맺은 TCP 연결 위에서 양방향 전이중(full-duplex) 메시지**를 주고받을 수 있다.",
+          "HTTP 메서드 중 하나로, POST처럼 사용한다.",
+          "오직 서버에서 클라이언트로만 푸시할 수 있다."
+        ],
+        "answer": 1,
+        "explanation": "WebSocket은 HTTP의 `Upgrade: websocket` 헤더로 핸드셰이크 후, 같은 TCP 연결 위에서 양방향 전이중 메시지를 주고받습니다. 헤더 오버헤드가 작아 실시간 채팅/주식 차트/게임에 적합합니다. **SSE(Server-Sent Events)**는 한 방향(서버→클라이언트)만 가능하고, WebSocket은 진정한 양방향입니다.",
+        "xp": 15
+      }
+    ]
+  },
+  {
+    "id": "spring-mvc-1",
+    "title": "Spring MVC 1편 - 백엔드 웹 개발 핵심 기술",
+    "blurb": "웹 서버/애플리케이션 서버/WAS의 차이, 서블릿의 동작 원리, HttpServletRequest/Response 직접 다루기, JSP/서블릿 기반 MVC, Spring Boot의 DispatcherServlet, HandlerMapping/Adapter, ViewResolver, @RequestMapping, @RequestParam, @ModelAttribute.",
+    "track": "Spring",
+    "order": 10,
+    "estMinutes": 110,
+    "questions": [
+      {
+        "id": "sm1-01",
+        "type": "mcq",
+        "chapter": "spring-mvc-1",
+        "prompt": "**웹 서버(Web Server)**와 **WAS(Web Application Server)**의 차이로 가장 적절한 것은?",
+        "choices": [
+          "둘은 같은 의미이며, 부르는 이름만 다르다.",
+          "**웹 서버는 정적 리소스(HTML/CSS/JS/이미지) 제공**, **WAS는 동적 로직(서블릿/JSP) 실행**까지 담당. Tomcat은 WAS, nginx는 웹 서버다.",
+          "웹 서버는 HTTP를 모르고, WAS만 HTTP를 안다.",
+          "웹 서버는 클라이언트 측, WAS는 서버 측 소프트웨어다."
+        ],
+        "answer": 1,
+        "explanation": "**웹 서버**(nginx, Apache httpd): 정적 리소스를 빠르게 서빙하는 것이 주 목적. **WAS**(Tomcat, Jetty, WildFly): 서블릿/JSP 같은 **동적 로직**을 실행하는 컨테이너. 실무에서는 정적 리소스는 nginx로, 동적 요청은 WAS로 보내는 구성이 일반적입니다. Spring Boot의 내장 톰캣은 WAS에 해당합니다.",
+        "xp": 10
+      },
+      {
+        "id": "sm1-02",
+        "type": "mcq",
+        "chapter": "spring-mvc-1",
+        "prompt": "자바 **서블릿(Servlet)**에 대한 설명으로 가장 정확한 것은?",
+        "choices": [
+          "HTML을 동적으로 생성하기 위한 마크업 언어.",
+          "**HTTP 요청을 받아 처리하고 응답을 만드는 자바 표준 인터페이스**(`HttpServlet`을 구현). 톰캣 같은 서블릿 컨테이너가 생명주기를 관리한다.",
+          "스프링이 직접 만든 전용 클래스.",
+          "스레드 풀 없이 단일 스레드에서 모든 요청을 처리한다."
+        ],
+        "answer": 1,
+        "explanation": "서블릿은 `javax.servlet`/`jakarta.servlet` 패키지의 **자바 표준 인터페이스**입니다. 서블릿 컨테이너(톰캣)는 (1) 서블릿 객체를 싱글톤으로 관리, (2) HTTP 요청이 오면 `service()` → `doGet()`/`doPost()` 등을 호출, (3) 응답 후에도 **객체는 살아있어서 재사용**합니다. Spring Boot도 결국은 `DispatcherServlet`(서블릿)을 만들어 등록하는 것에서 출발합니다.",
+        "xp": 10
+      },
+      {
+        "id": "sm1-03",
+        "type": "mcq",
+        "chapter": "spring-mvc-1",
+        "prompt": "서블릿 컨테이너(Tomcat)가 **HTTP 요청을 처리할 때** 호출하는 메서드 순서로 가장 적절한 것은?",
+        "choices": [
+          "`init()` → `service()` → `destroy()`",
+          "`init()` → `service(request, response)` → `doGet()` / `doPost()` → `destroy()` (컨테이너 종료 시)",
+          "`destroy()` → `service()` → `init()`",
+          "`service()` → `init()` → `destroy()`"
+        ],
+        "answer": 1,
+        "explanation": "서블릿 생명주기: (1) `init()` — 서블릿이 처음 메모리에 로드될 때 한 번 호출, (2) `service(req, resp)` — 모든 요청마다 호출되며 HTTP 메서드에 따라 `doGet`/`doPost`/`doPut`/`doDelete`로 분기, (3) `destroy()` — 컨테이너가 종료되거나 서블릿이 unload될 때 한 번 호출. Spring의 `@PostConstruct`/`@PreDestroy`도 이 콜백에 매핑됩니다.",
+        "xp": 10
+      },
+      {
+        "id": "sm1-04",
+        "type": "mcq",
+        "chapter": "spring-mvc-1",
+        "prompt": "서블릿에서 **HttpServletRequest**를 통해 얻을 수 없는 것은?",
+        "choices": [
+          "HTTP 메서드(`getMethod()`)",
+          "요청 URL(`getRequestURL()`)",
+          "**서버의 디스크 여유 공간(`getDiskFreeSpace()`)**",
+          "쿠키(`getCookies()`)"
+        ],
+        "answer": 2,
+        "explanation": "`HttpServletRequest`는 HTTP 요청과 관련된 정보(메서드/URL/헤더/쿠키/세션/바디)만 노출합니다. 서버의 디스크/메모리 같은 시스템 정보는 서블릿 API가 제공하지 않습니다. 필요하다면 `File.getUsableSpace()` 같은 별도 API를 써야 합니다.",
+        "xp": 10
+      },
+      {
+        "id": "sm1-05",
+        "type": "mcq",
+        "chapter": "spring-mvc-1",
+        "prompt": "서블릿에서 응답에 JSON을 직접 쓰려면 어떻게 하는가? (옳은 코드)",
+        "choices": [
+          "```java\nPrintWriter w = response.getWriter();\nw.write(\"{}\\\"name\\\":\\\"kim\\\"}\");",
+          "```java\nresponse.setContentType(\"application/json\");\\nresponse.setCharacterEncoding(\"UTF-8\");\\nPrintWriter w = response.getWriter();\\nw.write(\"{\\\\\"name\\\\\":\\\\\"kim\\\\\"}\");",
+          "`response.sendJson(\"{}\\\"name\\\":\\\"kim\\\"}\")`",
+          "JSON은 서블릿에서 직접 못 쓰고, 무조건 JSP를 써야 한다."
+        ],
+        "answer": 1,
+        "explanation": "응답에 JSON을 쓰려면 (1) `Content-Type: application/json; charset=UTF-8`을 설정하고, (2) `PrintWriter`로 본문을 직접 씁니다. (1)은 인코딩 누락 시 한글이 깨질 수 있고, (3)은 존재하지 않는 메서드, (4)는 틀린 사실입니다. Spring MVC는 이런 보일러플레이트를 `MappingJackson2HttpMessageConverter`로 자동 처리해줍니다.",
+        "xp": 15
+      },
+      {
+        "id": "sm1-06",
+        "type": "mcq",
+        "chapter": "spring-mvc-1",
+        "prompt": "옛날 **JSP 기반 MVC 패턴**에서 컨트롤러의 역할로 가장 적절한 것은?",
+        "choices": [
+          "HTML 마크업을 직접 렌더링한다.",
+          "**HTTP 요청을 받아 비즈니스 로직을 호출하고, 결과 데이터를 모델에 담아 뷰(JSP)에 forward**한다.",
+          "데이터베이스 테이블과 매핑한다.",
+          "정적 자원을 서빙한다."
+        ],
+        "answer": 1,
+        "explanation": "JSP MVC 패턴: (1) **Controller**(서블릿)가 요청을 받고, (2) 서비스/리포지토리를 호출해 데이터를 만들어, (3) `request.setAttribute(\"users\", list)`로 모델에 담고, (4) `RequestDispatcher.forward(\"/WEB-INF/views/list.jsp\")`로 뷰에 넘깁니다. JSP는 모델 데이터를 EL/JSTL로 출력만 합니다. Spring MVC도 본질은 같은 구조(`DispatcherServlet` + `ViewResolver` + 모델 + 뷰).",
+        "xp": 10
+      },
+      {
+        "id": "sm1-07",
+        "type": "mcq",
+        "chapter": "spring-mvc-1",
+        "prompt": "Spring MVC의 **DispatcherServlet**이 하는 일로 가장 적절한 것은?",
+        "choices": [
+          "데이터베이스 연결을 관리한다.",
+          "**HTTP 요청을 받아 적절한 핸들러(컨트롤러 메서드)를 찾고, 실행하고, 결과를 응답으로 변환하는 전체 프론트 컨트롤러** 역할을 한다.",
+          "정적 HTML 파일만 서빙한다.",
+          "자바 코드를 컴파일한다."
+        ],
+        "answer": 1,
+        "explanation": "DispatcherServlet은 Spring MVC의 **프론트 컨트롤러 패턴** 구현체입니다. `HandlerMapping`으로 URL → 핸들러를 찾고, `HandlerAdapter`로 핸들러를 실행하고, `ViewResolver`/`HttpMessageConverter`로 결과를 응답으로 변환합니다. 모든 Spring Boot 웹 애플리케이션은 이 서블릿 하나를 자동 등록합니다.",
+        "xp": 10
+      },
+      {
+        "id": "sm1-08",
+        "type": "mcq",
+        "chapter": "spring-mvc-1",
+        "prompt": "다음 컨트롤러에서 `GET /users/42` 요청을 처리하면서 `id`를 **Long 타입**으로 받으려면? (옳은 코드)",
+        "choices": [
+          "```java\n@GetMapping(\"/users/{id}\")\\npublic String getUser(@PathVariable(\"id\") Long id) { ... }",
+          "```java\n@GetMapping(\"/users/{id}\")\\npublic String getUser(HttpServletRequest req) {\\n  Long id = (Long) req.getAttribute(\"id\");\\n}",
+          "```java\n@GetMapping(\"/users/{id}\")\\npublic String getUser(@RequestParam Long id) { ... }",
+          "Long 타입은 받을 수 없고 무조건 String으로 받아서 파싱해야 한다."
+        ],
+        "answer": 0,
+        "explanation": "URL 경로 변수는 `@PathVariable`로 받고, `Long`/`int`/`String` 등 선언한 타입으로 **자동 변환**됩니다(`StringToLongConverter` 같은 내장 컨버터). 변수 이름과 경로 변수가 같으면 `@PathVariable`만 써도 됩니다. (3)은 `/users/42?id=42`처럼 쿼리 스트링을 받을 때 쓰는 어노테이션입니다.",
+        "xp": 10
+      },
+      {
+        "id": "sm1-09",
+        "type": "mcq",
+        "chapter": "spring-mvc-1",
+        "prompt": "`@RequestParam(\"q\") String query`로 받은 파라미터가 요청에 **없을 때** 기본 동작은?",
+        "choices": [
+          "자동으로 null이 들어온다.",
+          "**예외(`MissingServletRequestParameterException`)가 발생**해 400 Bad Request로 응답된다.",
+          "빈 문자열(\"\\\"\")이 들어온다.",
+          "컴파일 에러가 발생한다."
+        ],
+        "answer": 1,
+        "explanation": "`@RequestParam`은 기본적으로 `required = true`입니다. 요청에 해당 파라미터가 없으면 400 Bad Request가 반환됩니다. 선택적으로 만들고 싶으면 `@RequestParam(name = \"q\", required = false) String query` 또는 `String query = null`로 받으면 됩니다. Java 8+에서는 `Optional<String>`도 가능합니다.",
+        "xp": 10
+      },
+      {
+        "id": "sm1-10",
+        "type": "mcq",
+        "chapter": "spring-mvc-1",
+        "prompt": "**`@ModelAttribute`**의 주된 역할로 가장 적절한 것은?",
+        "choices": [
+          "요청 본문(JSON)을 객체로 변환한다.",
+          "**요청 파라미터(또는 폼 필드)를 한 번에 객체에 바인딩**하고, 모델에 자동 추가한다. 주로 HTML 폼 처리에 쓴다.",
+          "HTTP 세션을 강제 종료한다.",
+          "컨트롤러의 모든 메서드 로그를 남긴다."
+        ],
+        "answer": 1,
+        "explanation": "`@ModelAttribute`는 요청 파라미터를 객체 필드에 자동 바인딩합니다. 예: `UserForm` 클래스에 `name`, `email` 필드가 있으면 `/signup?name=kim&email=kim@x.com` 요청이 `UserForm` 객체로 매핑됩니다. 동시에 모델에 `userForm`이라는 이름으로 자동 추가되어 뷰에서 사용 가능합니다. (1)은 `@RequestBody`의 역할입니다.",
+        "xp": 10
+      },
+      {
+        "id": "sm1-11",
+        "type": "mcq",
+        "chapter": "spring-mvc-1",
+        "prompt": "**`@RequestBody`**로 JSON 요청을 받으려면 무엇이 클래스패스에 있어야 하는가?",
+        "choices": [
+          "`servlet-api.jar`만 있으면 된다.",
+          "**Jackson(`jackson-databind`)이 클래스패스에 있어야** `MappingJackson2HttpMessageConverter`가 JSON ↔ 객체를 자동 변환한다.",
+          "Spring이 자체 JSON 파서를 내장하고 있어 외부 라이브러리가 필요 없다.",
+          "GSON이 기본이다."
+        ],
+        "answer": 1,
+        "explanation": "Spring Boot의 `spring-boot-starter-web`은 Jackson을 의존성으로 끌어옵니다. 그래서 별도 설정 없이 `@RequestBody` + Jackson으로 JSON을 객체로 자동 역직렬화합니다. (4)는 사실이 아니고, (3)도 틀렸습니다. `HttpMessageConverter`가 `Content-Type`을 보고 적절한 컨버터(Jackson, Gson 등)를 선택해 동작합니다.",
+        "xp": 10
+      },
+      {
+        "id": "sm1-12",
+        "type": "mcq",
+        "chapter": "spring-mvc-1",
+        "prompt": "Spring MVC에서 **반환 타입이 `String`이고 `@Controller`만 붙은** 메서드가 `\"hello\"`를 반환하면 어떻게 되는가?",
+        "choices": [
+          "HTTP 응답 본문에 `\"hello\"` 문자열이 그대로 담긴다.",
+          "**`ViewResolver`가 `hello`를 뷰 이름으로 해석**해 `/WEB-INF/views/hello.jsp`(또는 thymeleaf 템플릿) 같은 뷰를 렌더링한다.",
+          "404 Not Found를 반환한다.",
+          "메서드 이름이 응답 본문이 된다."
+        ],
+        "answer": 1,
+        "explanation": "순수 `@Controller`에서 `String` 반환은 **뷰 이름**으로 해석되어 `ViewResolver`가 실제 뷰로 매핑합니다. Thymeleaf라면 `classpath:/templates/hello.html`, JSP라면 `/WEB-INF/views/hello.jsp`를 찾아 렌더링합니다. JSON/text로 직접 응답하고 싶으면 `@ResponseBody`를 붙이거나 클래스 레벨에 `@RestController`를 사용합니다.",
+        "xp": 10
+      },
+      {
+        "id": "sm1-13",
+        "type": "mcq",
+        "chapter": "spring-mvc-1",
+        "prompt": "**Thymeleaf**의 가장 큰 장점으로 가장 적절한 것은?",
+        "choices": [
+          "서버 없이 클라이언트에서만 실행된다.",
+          "**HTML을 깨지 않고 자연스럽게 속성(`th:text`, `th:if` 등)으로 서버 로직을 끼워 넣을 수 있다** — 디자이너/퍼블리셔 협업과 정적 미리보기가 쉽다.",
+          "JSP보다 10배 빠르다.",
+          "Spring Boot 기본이 아니라 직접 추가해야만 쓸 수 있다."
+        ],
+        "answer": 1,
+        "explanation": "Thymeleaf의 핵심 장점은 **Natural Templating**입니다. `th:text` 같은 속성을 추가해도 브라우저에서 정적 HTML로 미리보기 가능(속성이 무시됨), 디자이너가 만든 마크업에 자연스럽게 서버 로직을 더할 수 있습니다. JSP는 `<%= ... %>`나 태그 라이브러리가 HTML 구조를 깨는 데 반합니다. Spring Boot의 `spring-boot-starter-thymeleaf`만 의존성에 넣으면 자동 설정됩니다.",
+        "xp": 15
+      },
+      {
+        "id": "sm1-14",
+        "type": "mcq",
+        "chapter": "spring-mvc-1",
+        "prompt": "Spring MVC의 **HandlerInterceptor**가 호출되는 시점으로 가장 적절한 것은?",
+        "choices": [
+          "데이터베이스 쿼리 직후.",
+          "**DispatcherServlet이 컨트롤러를 호출하기 전(preHandle), 후(postHandle), 뷰 렌더링 후(afterCompletion)** 세 시점에 개입한다.",
+          "HTTP 요청이 네트워크에 도달한 직후.",
+          "JVM이 클래스 로딩을 끝낸 직후."
+        ],
+        "answer": 1,
+        "explanation": "`HandlerInterceptor`는 DispatcherServlet과 컨트롤러 사이의 필터 같은 존재입니다. 세 콜백: (1) `preHandle` — 컨트롤러 실행 전 (false 반환 시 중단), (2) `postHandle` — 컨트롤러 실행 후·뷰 렌더링 전, (3) `afterCompletion` — 뷰 렌더링 후 (예외 발생해도 호출). Servlet Filter와 비슷하지만, DispatcherServlet이 가진 핸들러 매핑 정보를 함께 볼 수 있다는 차이가 있습니다.",
+        "xp": 15
+      },
+      {
+        "id": "sm1-15",
+        "type": "mcq",
+        "chapter": "spring-mvc-1",
+        "prompt": "**Servlet Filter**와 **HandlerInterceptor**의 차이로 가장 적절한 것은?",
+        "choices": [
+          "둘은 완전히 같은 기능이다.",
+          "**Filter는 서블릿 컨테이너 레벨에서 모든 요청에 동작**(DispatcherServlet보다 먼저), **Interceptor는 DispatcherServlet 이후 핸들러 호출 전후에만** 동작한다.",
+          "Filter는 Spring 전용, Interceptor는 표준 서블릿 API다.",
+          "Filter는 HTTPS에서만 동작한다."
+        ],
+        "answer": 1,
+        "explanation": "**Filter**(Servlet 표준, `javax.servlet`): DispatcherServlet이 받기 전/후에 모든 요청을 가로챕니다. 인코딩, CORS, 인증 같은 cross-cutting 처리에 적합. **Interceptor**(Spring MVC 전용): DispatcherServlet이 핸들러를 찾은 후에만 동작. 핸들러 자체에 대한 정보(메서드, 어노테이션 등)를 활용 가능. 둘 다 **AOP의 횡단 관심사**를 처리하지만, 적용 지점이 다릅니다.",
+        "xp": 15
+      },
+      {
+        "id": "sm1-16",
+        "type": "mcq",
+        "chapter": "spring-mvc-1",
+        "prompt": "Spring MVC에서 **예외 처리**를 위해 컨트롤러 안에서 직접 try/catch 대신 사용하는 어노테이션은?",
+        "choices": [
+          "`@TryCatch`",
+          "**`@ExceptionHandler`** (또는 `@ControllerAdvice`/`@RestControllerAdvice`)",
+          "`@HandleError`",
+          "`@Recover`"
+        ],
+        "answer": 1,
+        "explanation": "Spring MVC는 `@ExceptionHandler`로 컨트롤러 단위, `@ControllerAdvice`(또는 REST라면 `@RestControllerAdvice`)로 전역 예외 처리를 지원합니다. 비즈니스 예외를 HTTP 상태 코드로 매핑할 때 `@ResponseStatus`도 함께 씁니다. 이렇게 하면 try/catch로 컨트롤러 로직이 어지럽지 않고, 일관된 에러 응답을 만들 수 있습니다.",
+        "xp": 10
+      },
+      {
+        "id": "sm1-17",
+        "type": "mcq",
+        "chapter": "spring-mvc-1",
+        "prompt": "Spring MVC가 요청 URL을 어떤 컨트롤러 메서드로 보낼지 찾는 단계(HandlerMapping)와 실제로 메서드를 호출하는 단계(HandlerAdapter)에 대한 설명으로 옳은 것은?",
+        "choices": [
+          "컨트롤러 메서드만 있으면 자동으로 등록된다.",
+          "**`@RequestMapping`/`@GetMapping`이 붙은 메서드들은 시작 시 `RequestMappingHandlerMapping`이 스캔해 URL→메서드 매핑 테이블을 만든다. `RequestMappingHandlerAdapter`가 그 메서드를 리플렉션으로 실행한다.**",
+          "HandlerMapping은 직접 new로 만들어야 동작한다.",
+          "Spring은 HandlerMapping을 사용하지 않는다."
+        ],
+        "answer": 1,
+        "explanation": "Spring Boot가 `spring-boot-starter-web`을 보면 `RequestMappingHandlerMapping`이 빈으로 자동 등록되고, 컨트롤러를 스캔하면서 URL → 메서드 매핑 정보를 만듭니다. 요청이 오면 (1) HandlerMapping이 매핑된 핸들러(=메서드와 시그니처 정보)를 찾고, (2) HandlerAdapter가 그 핸들러를 실행(파라미터 바인딩 → 메서드 호출 → 반환값 변환)합니다. 사용자가 이걸 직접 등록할 일은 거의 없습니다.",
+        "xp": 15
+      },
+      {
+        "id": "sm1-18",
+        "type": "mcq",
+        "chapter": "spring-mvc-1",
+        "prompt": "다음 중 Spring MVC의 **요청 → 응답 흐름** 순서로 가장 적절한 것은?",
+        "choices": [
+          "요청 → 컨트롤러 → DispatcherServlet → HandlerMapping → HandlerAdapter",
+          "**요청 → Servlet Filter → DispatcherServlet → HandlerMapping → (Interceptor) → HandlerAdapter → 컨트롤러 → ViewResolver/HttpMessageConverter → 응답**",
+          "요청 → HandlerAdapter → HandlerMapping → DispatcherServlet",
+          "요청 → 컨트롤러 → ViewResolver → DispatcherServlet"
+        ],
+        "answer": 1,
+        "explanation": "표준 흐름: 서블릿 컨테이너(톰캣)가 요청을 받으면 (1) 등록된 Filter 체인을 통과, (2) DispatcherServlet이 받아, (3) HandlerMapping으로 URL 매핑을 찾고, (4) Interceptor의 `preHandle`이 호출되고, (5) HandlerAdapter가 컨트롤러 메서드를 실행(파라미터 바인딩 포함), (6) 반환값을 `HttpMessageConverter`/ViewResolver로 직렬화, (7) Interceptor의 `postHandle`/`afterCompletion`이 호출되고, (8) 응답이 나갑니다.",
+        "xp": 15
+      },
+      {
+        "id": "sm1-19",
+        "type": "mcq",
+        "chapter": "spring-mvc-1",
+        "prompt": "Spring MVC의 **HttpMessageConverter**가 담당하는 작업으로 가장 적절한 것은?",
+        "choices": [
+          "데이터베이스 결과를 객체로 매핑한다.",
+          "**HTTP 요청/응답 본문을 객체 ↔ JSON/XML/문자열로 직렬화/역직렬화**한다. (`@RequestBody`/`@ResponseBody` 동작의 핵심)",
+          "HTTP 메서드를 enum으로 매핑한다.",
+          "URI를 정규화한다."
+        ],
+        "answer": 1,
+        "explanation": "`HttpMessageConverter`는 `Content-Type`/`Accept`를 보고 적절한 컨버터(`MappingJackson2HttpMessageConverter` for JSON, `MappingJackson2XmlHttpMessageConverter` for XML, `StringHttpMessageConverter` for text 등)를 골라 본문을 객체 ↔ 텍스트로 바꿉니다. `@RequestBody`/`@ResponseBody`가 동작하는 이유입니다.",
+        "xp": 10
+      },
+      {
+        "id": "sm1-20",
+        "type": "mcq",
+        "chapter": "spring-mvc-1",
+        "prompt": "Spring Boot에서 **`@Controller` 메서드가 `void`를 반환**하면 어떻게 되는가?",
+        "choices": [
+          "컴파일 에러가 발생한다.",
+          "**`@ResponseBody`도 없고 `HttpServletResponse`/`OutputStream`/`Writer`로 직접 응답한 경우** 그대로 응답이 클라이언트로 전달된다. (서블릿 API 직접 사용)",
+          "Spring이 자동으로 200 OK + 빈 본문을 보낸다.",
+          "메서드 이름이 뷰 이름이 된다."
+        ],
+        "answer": 1,
+        "explanation": "`void` 반환 + `@ResponseBody` 없음 + 직접 응답 미처리면 `RequestMappingHandlerAdapter`가 본문 없이 응답을 보내기는 하지만, 보통 `void` 반환은 **서블릿 API(`HttpServletResponse.getWriter()`)로 직접 응답을 쓰는 경우**에 씁니다. 또는 `ModelAndView`를 파라미터로 받아 뷰만 지정할 때도 `void`를 쓰기도 합니다. Spring 5+ 부터는 `String` 반환이 가장 명시적이고 권장됩니다.",
+        "xp": 10
+      }
+    ]
   }
 ]
